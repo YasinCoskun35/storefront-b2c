@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -65,6 +65,13 @@ export function Header() {
             <Search className="h-4 w-4" />
           </Button>
         </form>
+
+        {/* Cart */}
+        <Link href="/cart" className="ml-4">
+          <Button size="icon" variant="ghost">
+            <ShoppingCart className="h-5 w-5" />
+          </Button>
+        </Link>
       </div>
     </header>
   );

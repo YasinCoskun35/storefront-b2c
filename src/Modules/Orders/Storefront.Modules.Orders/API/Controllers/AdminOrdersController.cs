@@ -26,12 +26,11 @@ public class AdminOrdersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllOrders(
         [FromQuery] string? status,
-        [FromQuery] string? partnerCompanyId,
+        [FromQuery] string? guestEmail,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20)
     {
-        // TODO: Create GetAllOrdersQuery that doesn't filter by companyId
-        var query = new GetPartnerOrdersQuery(partnerCompanyId ?? "", status, pageNumber, pageSize);
+        var query = new GetAllOrdersQuery(status, guestEmail, pageNumber, pageSize);
         var result = await _mediator.Send(query);
 
         return result.IsSuccess

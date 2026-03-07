@@ -17,21 +17,52 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<
 
     public async Task<Result<string>> Handle(AddToCartCommand request, CancellationToken cancellationToken)
     {
-        // Get or create cart for this partner user
-        var cart = await _context.Carts
-            .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.PartnerUserId == request.PartnerUserId && c.IsActive, cancellationToken);
+        // Get or create cart — either by GuestId (B2C) or PartnerUserId (B2B)
+        Cart? cart;
 
-        if (cart is null)
+        if (!string.IsNullOrEmpty(request.GuestId))
         {
-            cart = new Cart
+            cart = await _context.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.GuestId == request.GuestId && c.IsActive, cancellationToken);
+
+            if (cart is null)
             {
-                PartnerUserId = request.PartnerUserId,
-                PartnerCompanyId = request.PartnerCompanyId,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            _context.Carts.Add(cart);
+                cart = new Cart { GuestId = request.GuestId, IsActive = true, CreatedAt = DateTime.UtcNow };
+                _context.Carts.Add(cart);
+            }
+        }
+        else
+        {
+            cart = await _context.Carts
+                .Include(c => c.Items)
+                .FirstOrDefaultAsync(c => c.PartnerUserId == request.PartnerUserId && c.IsActive, cancellationToken);
+
+            if (cart is null)
+            {
+                // Reactivate if a previous cart exists (e.g. after order was placed)
+                var inactive = await _context.Carts
+                    .Include(c => c.Items)
+                    .FirstOrDefaultAsync(c => c.PartnerUserId == request.PartnerUserId, cancellationToken);
+
+                if (inactive is not null)
+                {
+                    inactive.IsActive = true;
+                    inactive.UpdatedAt = DateTime.UtcNow;
+                    cart = inactive;
+                }
+                else
+                {
+                    cart = new Cart
+                    {
+                        PartnerUserId = request.PartnerUserId,
+                        PartnerCompanyId = request.PartnerCompanyId,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.Carts.Add(cart);
+                }
+            }
         }
 
         // Check if same product + color already in cart
@@ -41,14 +72,12 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<
 
         if (existingItem is not null)
         {
-            // Update quantity instead of adding duplicate
             existingItem.Quantity += request.Quantity;
             existingItem.UpdatedAt = DateTime.UtcNow;
         }
         else
         {
-            // Add new item
-            var cartItem = new CartItem
+            cart.Items.Add(new CartItem
             {
                 CartId = cart.Id,
                 ProductId = request.ProductId,
@@ -63,9 +92,7 @@ public class AddToCartCommandHandler : IRequestHandler<AddToCartCommand, Result<
                 ColorOptionCode = request.ColorOptionCode,
                 CustomizationNotes = request.CustomizationNotes,
                 CreatedAt = DateTime.UtcNow
-            };
-
-            cart.Items.Add(cartItem);
+            });
         }
 
         cart.UpdatedAt = DateTime.UtcNow;

@@ -9,6 +9,7 @@ using Storefront.Modules.Catalog.Core.Application.Settings;
 using Storefront.Modules.Catalog.Infrastructure.BackgroundJobs;
 using Storefront.Modules.Catalog.Infrastructure.Persistence;
 using Storefront.Modules.Catalog.Infrastructure.Services;
+using Storefront.SharedKernel;
 
 namespace Storefront.Modules.Catalog;
 
@@ -43,6 +44,7 @@ public static class CatalogModuleExtensions
 
         // Register services
         services.AddScoped<IImageUploadService, ImageUploadService>();
+        services.AddScoped<IProductPriceResolver, CatalogProductPriceResolver>();
 
         // Register background service
         services.AddHostedService<ImageProcessingBackgroundService>();

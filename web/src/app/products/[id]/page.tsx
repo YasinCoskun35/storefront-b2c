@@ -2,9 +2,8 @@ import { Metadata } from "next";
 import Image from "next/image";
 import { catalogApi } from "@/lib/api";
 import { formatPrice, getImageUrl } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
 import { notFound } from "next/navigation";
+import { AddToCartSection } from "@/components/products/add-to-cart-section";
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -101,16 +100,18 @@ export default async function ProductDetailPage({
             <p className="text-sm text-muted-foreground">SKU: {product.sku}</p>
           </div>
 
-          <div className="flex items-baseline gap-4">
-            <span className="text-4xl font-bold">
-              {formatPrice(product.price)}
-            </span>
-            {product.compareAtPrice && product.compareAtPrice > product.price && (
-              <span className="text-xl text-muted-foreground line-through">
-                {formatPrice(product.compareAtPrice)}
+          {product.price != null && (
+            <div className="flex items-baseline gap-4">
+              <span className="text-4xl font-bold">
+                {formatPrice(product.price)}
               </span>
-            )}
-          </div>
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <span className="text-xl text-muted-foreground line-through">
+                  {formatPrice(product.compareAtPrice)}
+                </span>
+              )}
+            </div>
+          )}
 
           <div
             className={`inline-flex items-center px-4 py-2 rounded text-sm font-medium ${
@@ -124,10 +125,7 @@ export default async function ProductDetailPage({
               : "Out of Stock"}
           </div>
 
-          <Button size="lg" className="w-full" disabled={product.stockStatus !== "InStock"}>
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            Contact to Purchase
-          </Button>
+          <AddToCartSection product={product} />
 
           {product.shortDescription && (
             <div>

@@ -16,13 +16,17 @@ public class GetCartQueryHandler : IRequestHandler<GetCartQuery, Result<CartDto>
 
     public async Task<Result<CartDto>> Handle(GetCartQuery request, CancellationToken cancellationToken)
     {
-        var cart = await _context.Carts
-            .Include(c => c.Items)
-            .FirstOrDefaultAsync(c => c.PartnerUserId == request.PartnerUserId && c.IsActive, cancellationToken);
+        var query = _context.Carts.Include(c => c.Items).Where(c => c.IsActive);
+
+        if (!string.IsNullOrEmpty(request.GuestId))
+            query = query.Where(c => c.GuestId == request.GuestId);
+        else
+            query = query.Where(c => c.PartnerUserId == request.PartnerUserId);
+
+        var cart = await query.FirstOrDefaultAsync(cancellationToken);
 
         if (cart is null)
         {
-            // Return empty cart
             return Result<CartDto>.Success(new CartDto(
                 Guid.NewGuid().ToString(),
                 0,
@@ -30,7 +34,7 @@ public class GetCartQueryHandler : IRequestHandler<GetCartQuery, Result<CartDto>
             ));
         }
 
-        var dto = new CartDto(
+        return Result<CartDto>.Success(new CartDto(
             cart.Id,
             cart.Items.Count,
             cart.Items.Select(i => new CartItemDto(
@@ -47,8 +51,6 @@ public class GetCartQueryHandler : IRequestHandler<GetCartQuery, Result<CartDto>
                 i.ColorOptionCode,
                 i.CustomizationNotes
             )).ToList()
-        );
-
-        return Result<CartDto>.Success(dto);
+        ));
     }
 }

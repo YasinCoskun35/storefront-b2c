@@ -3,7 +3,10 @@ using Storefront.SharedKernel;
 
 namespace Storefront.Modules.Orders.Core.Application.Queries;
 
-public record GetCartQuery(string PartnerUserId) : IRequest<Result<CartDto>>;
+public record GetCartQuery(
+    string? PartnerUserId = null,
+    string? GuestId = null
+) : IRequest<Result<CartDto>>;
 
 public record CartDto(
     string Id,

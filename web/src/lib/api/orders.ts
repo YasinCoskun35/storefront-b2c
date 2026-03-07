@@ -246,7 +246,7 @@ export const adminOrdersApi = {
     partnerCompanyId?: string;
     pageNumber?: number;
     pageSize?: number;
-  }) {
+  }): Promise<{ items: OrderSummary[]; totalCount: number; pageNumber: number; pageSize: number; totalPages: number }> {
     const response = await axios.get(`${API_URL}/api/admin/orders`, {
       params,
       withCredentials: true,

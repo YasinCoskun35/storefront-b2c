@@ -73,7 +73,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {productsResult.items.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    image={product.primaryImageUrl || ""}
+                    stockStatus={(product.stockStatus as "InStock" | "LowStock" | "OutOfStock") || "InStock"}
+                    category={product.categoryName}
+                  />
                 ))}
               </div>
 
