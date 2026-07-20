@@ -7,6 +7,7 @@ using Storefront.Modules.Catalog.Core.Application.Commands;
 using Storefront.Modules.Catalog.Core.Application.Interfaces;
 using Storefront.Modules.Catalog.Core.Application.Settings;
 using Storefront.Modules.Catalog.Infrastructure.BackgroundJobs;
+using Storefront.Modules.Catalog.Infrastructure.ExternalServices.Netsis;
 using Storefront.Modules.Catalog.Infrastructure.Persistence;
 using Storefront.Modules.Catalog.Infrastructure.Services;
 using Storefront.SharedKernel;
@@ -30,6 +31,16 @@ public static class CatalogModuleExtensions
             return options.Value;
         });
 
+        // Register Netsis Settings
+        services.Configure<NetsisSettings>(
+            configuration.GetSection(NetsisSettings.SectionName));
+
+        services.AddSingleton(sp =>
+        {
+            var options = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<NetsisSettings>>();
+            return options.Value;
+        });
+
         // Register CatalogDbContext with schema isolation and custom migration history table
         services.AddDbContext<CatalogDbContext>(options =>
             options.UseNpgsql(connectionString, npgsqlOptions =>
@@ -46,8 +57,19 @@ public static class CatalogModuleExtensions
         services.AddScoped<IImageUploadService, ImageUploadService>();
         services.AddScoped<IProductPriceResolver, CatalogProductPriceResolver>();
 
-        // Register background service
+        // Register Netsis integration client
+        services.AddHttpClient<INetsisClient, NetsisSoapClient>((sp, client) =>
+        {
+            var netsisSettings = sp.GetRequiredService<NetsisSettings>();
+            if (netsisSettings.RequestTimeoutSeconds > 0)
+            {
+                client.Timeout = TimeSpan.FromSeconds(netsisSettings.RequestTimeoutSeconds);
+            }
+        });
+
+        // Register background services
         services.AddHostedService<ImageProcessingBackgroundService>();
+        services.AddHostedService<NetsisSyncBackgroundService>();
 
         // Register MediatR handlers from this assembly
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
