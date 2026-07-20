@@ -232,15 +232,12 @@ sleep 10
 }
 ```
 
-### Catalog Settings (B2B Mode)
+### Catalog Settings
 
 ```json
 {
   "CatalogSettings": {
-    "PricingEnabled": false,
-    "RequirePriceForProducts": false,
-    "ShowPriceLabel": "Contact for Quote",
-    "AllowPriceInquiry": true
+    "RequirePriceForProducts": false
   }
 }
 ```

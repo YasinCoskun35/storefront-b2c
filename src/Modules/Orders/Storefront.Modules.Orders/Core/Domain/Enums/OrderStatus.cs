@@ -5,12 +5,12 @@ public enum OrderStatus
     Draft = 0,          // Cart not submitted yet
     Pending = 1,        // Order submitted, awaiting review
     QuoteSent = 2,      // Admin sent quote/price
-    Confirmed = 3,      // Partner confirmed the quote
+    Confirmed = 3,      // Customer confirmed the quote
     Preparing = 4,      // Order being prepared
     QualityCheck = 5,   // Quality control
     ReadyToShip = 6,    // Ready for shipping
     Shipping = 7,       // In transit
-    Delivered = 8,      // Delivered to partner
+    Delivered = 8,      // Delivered to customer
     Cancelled = 9,      // Order cancelled
     Rejected = 10       // Quote rejected
 }

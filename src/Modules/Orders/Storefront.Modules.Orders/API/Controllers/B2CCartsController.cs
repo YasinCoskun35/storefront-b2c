@@ -37,8 +37,6 @@ public class B2CCartsController : ControllerBase
             return BadRequest(new { message = "X-Guest-Id header is required" });
 
         var command = new AddToCartCommand(
-            PartnerUserId: null,
-            PartnerCompanyId: null,
             GuestId: guestId,
             ProductId: request.ProductId,
             ProductName: request.ProductName,

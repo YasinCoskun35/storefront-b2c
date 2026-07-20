@@ -4,8 +4,7 @@ using Storefront.SharedKernel;
 namespace Storefront.Modules.Orders.Core.Application.Commands;
 
 public record AddToCartCommand(
-    string? PartnerUserId,
-    string? PartnerCompanyId,
+    string GuestId,
     string ProductId,
     string ProductName,
     string ProductSKU,
@@ -16,6 +15,5 @@ public record AddToCartCommand(
     string? ColorOptionId,
     string? ColorOptionName,
     string? ColorOptionCode,
-    string? CustomizationNotes,
-    string? GuestId = null
+    string? CustomizationNotes
 ) : IRequest<Result<string>>;

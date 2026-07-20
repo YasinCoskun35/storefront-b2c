@@ -15,9 +15,9 @@ public class OrderComment
     public CommentType Type { get; set; } = CommentType.General;
     
     // Author Information
-    public string AuthorId { get; set; } = string.Empty; // User ID (admin or partner)
+    public string AuthorId { get; set; } = string.Empty; // User ID (admin or guest)
     public string AuthorName { get; set; } = string.Empty; // Display name
-    public string AuthorType { get; set; } = string.Empty; // "Admin" or "Partner"
+    public string AuthorType { get; set; } = string.Empty; // "Admin", "Guest", or "System"
     
     // Visibility
     public bool IsInternal { get; set; } = false; // Only visible to admins

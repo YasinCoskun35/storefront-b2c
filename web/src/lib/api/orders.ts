@@ -97,8 +97,9 @@ export interface OrderDetails {
   id: string;
   orderNumber: string;
   status: string;
-  partnerCompanyId: string;
-  partnerCompanyName: string;
+  guestEmail?: string;
+  guestName?: string;
+  guestPhone?: string;
   subTotal?: number;
   taxAmount?: number;
   shippingCost?: number;
@@ -121,17 +122,6 @@ export interface OrderDetails {
   confirmedAt?: string;
   items: OrderItem[];
   comments: OrderComment[];
-}
-
-export interface CreateOrderRequest {
-  deliveryAddress: string;
-  deliveryCity: string;
-  deliveryState: string;
-  deliveryPostalCode: string;
-  deliveryCountry: string;
-  deliveryNotes?: string;
-  requestedDeliveryDate?: string;
-  notes?: string;
 }
 
 export interface AddToCartRequest {
@@ -174,68 +164,6 @@ export interface AddColorOptionRequest {
 }
 
 // ============================================
-// Partner API
-// ============================================
-
-export const partnerOrdersApi = {
-  // Cart
-  async getCart() {
-    const response = await axios.get<Cart>(`${API_URL}/api/partner/cart`, {
-      withCredentials: true,
-    });
-    return response.data;
-  },
-
-  async addToCart(request: AddToCartRequest) {
-    const response = await axios.post(
-      `${API_URL}/api/partner/cart/items`,
-      request,
-      { withCredentials: true }
-    );
-    return response.data;
-  },
-
-  // Orders
-  async getOrders(params?: {
-    status?: string;
-    pageNumber?: number;
-    pageSize?: number;
-  }) {
-    const response = await axios.get(`${API_URL}/api/partner/orders`, {
-      params,
-      withCredentials: true,
-    });
-    return response.data;
-  },
-
-  async getOrderDetails(orderId: string) {
-    const response = await axios.get<OrderDetails>(
-      `${API_URL}/api/partner/orders/${orderId}`,
-      { withCredentials: true }
-    );
-    return response.data;
-  },
-
-  async createOrder(request: CreateOrderRequest) {
-    const response = await axios.post(
-      `${API_URL}/api/partner/orders`,
-      request,
-      { withCredentials: true }
-    );
-    return response.data;
-  },
-
-  async addComment(orderId: string, request: AddCommentRequest) {
-    const response = await axios.post(
-      `${API_URL}/api/partner/orders/${orderId}/comments`,
-      request,
-      { withCredentials: true }
-    );
-    return response.data;
-  },
-};
-
-// ============================================
 // Admin API
 // ============================================
 
@@ -243,7 +171,7 @@ export const adminOrdersApi = {
   // Orders
   async getOrders(params?: {
     status?: string;
-    partnerCompanyId?: string;
+    guestEmail?: string;
     pageNumber?: number;
     pageSize?: number;
   }): Promise<{ items: OrderSummary[]; totalCount: number; pageNumber: number; pageSize: number; totalPages: number }> {

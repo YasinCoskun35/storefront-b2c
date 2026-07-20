@@ -22,7 +22,7 @@ public class AddOrderCommentCommandValidator : AbstractValidator<AddOrderComment
 
         RuleFor(x => x.AuthorType)
             .NotEmpty().WithMessage("Author type is required")
-            .Must(x => x == "Admin" || x == "Partner" || x == "System")
-            .WithMessage("Author type must be Admin, Partner, or System");
+            .Must(x => x == "Admin" || x == "Guest" || x == "System")
+            .WithMessage("Author type must be Admin, Guest, or System");
     }
 }

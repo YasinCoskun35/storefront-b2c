@@ -7,5 +7,5 @@ public enum CommentType
     Quote = 2,          // Quote/price information
     Payment = 3,        // Payment related
     Shipping = 4,       // Shipping information
-    Internal = 5        // Internal note (not visible to partner)
+    Internal = 5        // Internal note (not visible to guest)
 }

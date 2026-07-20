@@ -9,7 +9,7 @@ public sealed record ProductDto(
     string? Description,
     string? ShortDescription,
     ProductType ProductType,
-    decimal? Price,  // Nullable for B2B quote-based pricing
+    decimal? Price,
     decimal? CompareAtPrice,
     decimal? BundlePrice,
     bool CanBeSoldSeparately,
@@ -22,9 +22,6 @@ public sealed record ProductDto(
     bool IsActive,
     bool IsFeatured,
     string? PrimaryImageUrl,
-    DateTime CreatedAt,
-    // Pricing configuration
-    bool PricingEnabled,
-    string? PriceLabel  // e.g., "Contact for Quote"
+    DateTime CreatedAt
 );
 

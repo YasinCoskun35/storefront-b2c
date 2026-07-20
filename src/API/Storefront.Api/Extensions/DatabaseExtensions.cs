@@ -267,15 +267,11 @@ public static class DatabaseExtensions
                     await ordersDb.Database.ExecuteSqlRawAsync(@"
                         CREATE TABLE IF NOT EXISTS orders.""Carts"" (
                             ""Id"" varchar(450) PRIMARY KEY,
-                            ""PartnerUserId"" varchar(450),
-                            ""PartnerCompanyId"" varchar(450),
                             ""GuestId"" varchar(450),
                             ""IsActive"" boolean NOT NULL DEFAULT true,
                             ""CreatedAt"" timestamp NOT NULL DEFAULT now(),
                             ""UpdatedAt"" timestamp
                         );
-                        CREATE INDEX IF NOT EXISTS ""IX_Carts_PartnerUserId"" ON orders.""Carts"" (""PartnerUserId"");
-                        CREATE INDEX IF NOT EXISTS ""IX_Carts_PartnerCompanyId"" ON orders.""Carts"" (""PartnerCompanyId"");
                         CREATE INDEX IF NOT EXISTS ""IX_Carts_GuestId"" ON orders.""Carts"" (""GuestId"");
                     ");
                     
@@ -308,10 +304,6 @@ public static class DatabaseExtensions
                         CREATE TABLE IF NOT EXISTS orders.""Orders"" (
                             ""Id"" varchar(450) PRIMARY KEY,
                             ""OrderNumber"" varchar(50) NOT NULL,
-                            ""OrderType"" int NOT NULL DEFAULT 0,
-                            ""PartnerCompanyId"" varchar(450),
-                            ""PartnerUserId"" varchar(450),
-                            ""PartnerCompanyName"" varchar(200),
                             ""GuestEmail"" varchar(256),
                             ""GuestName"" varchar(200),
                             ""GuestPhone"" varchar(50),
@@ -342,8 +334,6 @@ public static class DatabaseExtensions
                             ""CancelledAt"" timestamp
                         );
                         CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Orders_OrderNumber"" ON orders.""Orders"" (""OrderNumber"");
-                        CREATE INDEX IF NOT EXISTS ""IX_Orders_PartnerCompanyId"" ON orders.""Orders"" (""PartnerCompanyId"");
-                        CREATE INDEX IF NOT EXISTS ""IX_Orders_PartnerUserId"" ON orders.""Orders"" (""PartnerUserId"");
                         CREATE INDEX IF NOT EXISTS ""IX_Orders_GuestEmail"" ON orders.""Orders"" (""GuestEmail"");
                         CREATE INDEX IF NOT EXISTS ""IX_Orders_Status"" ON orders.""Orders"" (""Status"");
                         CREATE INDEX IF NOT EXISTS ""IX_Orders_CreatedAt"" ON orders.""Orders"" (""CreatedAt"");
@@ -409,10 +399,6 @@ public static class DatabaseExtensions
                 // Ensure B2C guest cart columns exist (additive migration)
                 await ordersDb.Database.ExecuteSqlRawAsync(@"
                     ALTER TABLE IF EXISTS orders.""Carts""
-                        ALTER COLUMN ""PartnerUserId"" DROP NOT NULL;
-                    ALTER TABLE IF EXISTS orders.""Carts""
-                        ALTER COLUMN ""PartnerCompanyId"" DROP NOT NULL;
-                    ALTER TABLE IF EXISTS orders.""Carts""
                         ADD COLUMN IF NOT EXISTS ""GuestId"" varchar(450);
                     CREATE INDEX IF NOT EXISTS ""IX_Carts_GuestId"" ON orders.""Carts"" (""GuestId"");
                 ");
@@ -420,20 +406,23 @@ public static class DatabaseExtensions
                 // Ensure B2C order columns exist (additive migration)
                 await ordersDb.Database.ExecuteSqlRawAsync(@"
                     ALTER TABLE IF EXISTS orders.""Orders""
-                        ADD COLUMN IF NOT EXISTS ""OrderType"" int NOT NULL DEFAULT 0;
-                    ALTER TABLE IF EXISTS orders.""Orders""
-                        ALTER COLUMN ""PartnerCompanyId"" DROP NOT NULL;
-                    ALTER TABLE IF EXISTS orders.""Orders""
-                        ALTER COLUMN ""PartnerUserId"" DROP NOT NULL;
-                    ALTER TABLE IF EXISTS orders.""Orders""
-                        ALTER COLUMN ""PartnerCompanyName"" DROP NOT NULL;
-                    ALTER TABLE IF EXISTS orders.""Orders""
                         ADD COLUMN IF NOT EXISTS ""GuestEmail"" varchar(256);
                     ALTER TABLE IF EXISTS orders.""Orders""
                         ADD COLUMN IF NOT EXISTS ""GuestName"" varchar(200);
                     ALTER TABLE IF EXISTS orders.""Orders""
                         ADD COLUMN IF NOT EXISTS ""GuestPhone"" varchar(50);
                     CREATE INDEX IF NOT EXISTS ""IX_Orders_GuestEmail"" ON orders.""Orders"" (""GuestEmail"");
+                ");
+
+                // Drop legacy B2B partner columns from deployments created before the
+                // Partner feature was removed (no-op on fresh databases).
+                await ordersDb.Database.ExecuteSqlRawAsync(@"
+                    ALTER TABLE IF EXISTS orders.""Carts"" DROP COLUMN IF EXISTS ""PartnerUserId"";
+                    ALTER TABLE IF EXISTS orders.""Carts"" DROP COLUMN IF EXISTS ""PartnerCompanyId"";
+                    ALTER TABLE IF EXISTS orders.""Orders"" DROP COLUMN IF EXISTS ""OrderType"";
+                    ALTER TABLE IF EXISTS orders.""Orders"" DROP COLUMN IF EXISTS ""PartnerCompanyId"";
+                    ALTER TABLE IF EXISTS orders.""Orders"" DROP COLUMN IF EXISTS ""PartnerUserId"";
+                    ALTER TABLE IF EXISTS orders.""Orders"" DROP COLUMN IF EXISTS ""PartnerCompanyName"";
                 ");
 
                 // Ensure PaymentTransactions table exists

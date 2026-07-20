@@ -58,9 +58,9 @@ export function CommentThread({
                   {comment.authorName}
                 </span>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  comment.authorType === "Admin" 
+                  comment.authorType === "Admin"
                     ? "bg-purple-100 text-purple-800"
-                    : comment.authorType === "Partner"
+                    : comment.authorType === "Guest"
                     ? "bg-blue-100 text-blue-800"
                     : "bg-gray-100 text-gray-800"
                 }`}>

@@ -1,6 +1,6 @@
-# Storefront - B2B Furniture Catalog & Order Management System
+# Storefront - B2C E-Commerce Catalog & Order Platform
 
-> A modern B2B platform for furniture manufacturers to showcase products and manage partner orders with quote-based pricing workflow.
+> A modern B2C storefront for browsing a product catalog, checking out as a guest, and paying online — with an admin dashboard for catalog, content, and order management.
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql)](https://www.postgresql.org/)
@@ -25,15 +25,14 @@
 
 ## 🎯 **Overview**
 
-Storefront is a production-ready B2B catalog and order management system designed for furniture manufacturers. It enables:
+Storefront is a production-ready B2C catalog and order platform. It enables:
 
-- **Product Catalog**: Browse products and bundles without public pricing
-- **Quote-Based Orders**: Partners request orders, you provide quotes and manage fulfillment
-- **Order Tracking**: Real-time status updates from request to delivery
-- **Communication**: Built-in commenting system for quotes, payment links, and updates
+- **Product Catalog**: Browse products and bundles with real pricing
+- **Guest Checkout**: No account required — add to cart and check out as a guest
+- **Online Payment**: Checkout is processed through iyzico
+- **Order Tracking**: Admins track orders from placement to delivery
 - **Bundle Products**: Create product sets (e.g., Living Room Set = Sofa + Chairs + Table)
-
-Perfect for **B2B furniture manufacturers, wholesalers, and distributors** moving from traditional phone/email orders to a digital platform.
+- **ERP Sync**: Optional Netsis integration keeps products and stock levels up to date
 
 ---
 
@@ -47,12 +46,16 @@ Perfect for **B2B furniture manufacturers, wholesalers, and distributors** movin
 - ✅ **Image Processing**: Automatic WebP conversion with multiple sizes (async background processing)
 - ✅ **SEO Optimization**: Auto-generated slugs, meta tags, sitemaps
 
-### **B2B Features**
-- ✅ **Price Configuration**: Toggle pricing visibility (B2B vs e-commerce modes)
-- ✅ **Quote Workflow**: Partners request orders, you provide quotes
-- ✅ **Order Management**: Status tracking from request to delivery
-- ✅ **Partner Accounts**: Manage B2B customers with company info
-- ✅ **Communication**: Order comments with payment links and documents
+### **Shopping & Checkout**
+- ✅ **Guest Cart**: Persistent cart identified by a guest ID, no login required
+- ✅ **Checkout**: Delivery details captured at checkout
+- ✅ **Online Payment**: iyzico payment integration with success/fail redirects
+- ✅ **Order Comments**: Communication thread on each order (status updates, notes)
+
+### **Netsis ERP Integration**
+- ✅ **Product Sync**: Pull product master data from Netsis and upsert into the catalog
+- ✅ **Stock Sync**: Keep stock levels and status current
+- ✅ **Scheduled + Manual**: Runs on an interval, or trigger on demand from the admin API
 
 ### **Admin Dashboard** (Web)
 - ✅ **Product Management**: CRUD with drag-drop image upload
@@ -60,14 +63,14 @@ Perfect for **B2B furniture manufacturers, wholesalers, and distributors** movin
 - ✅ **Bundle Builder**: Create product sets with components
 - ✅ **Content Management**: Blog posts and static pages with rich text editor
 - ✅ **User Management**: Role-based access control (Admin, Manager, User)
-- ✅ **Order Dashboard**: Review requests, send quotes, track fulfillment
+- ✅ **Order Dashboard**: Review orders, update status, track fulfillment
 
 ### **Technical Features**
 - ✅ **Modular Monolith**: Clean separation with isolated database schemas
 - ✅ **CQRS Pattern**: MediatR for commands and queries
 - ✅ **Result Pattern**: Explicit error handling without exceptions
 - ✅ **JWT Authentication**: Secure admin authentication with refresh tokens
-- ✅ **Background Jobs**: Image processing via Channels (non-blocking)
+- ✅ **Background Jobs**: Image processing and Netsis sync via background services
 - ✅ **Docker Ready**: Complete containerization for development and production
 - ✅ **Comprehensive Tests**: Architecture, unit, and integration tests
 
@@ -89,16 +92,16 @@ Perfect for **B2B furniture manufacturers, wholesalers, and distributors** movin
              │
     ┌────────▼────────────────────────────────────────────┐
     │              PostgreSQL 16                          │
-    │  ┌──────────┬──────────┬──────────┐                │
-    │  │ identity │ catalog  │ content  │  (schemas)     │
-    │  └──────────┴──────────┴──────────┘                │
+    │  ┌──────────┬──────────┬──────────┬──────────┐      │
+    │  │ identity │ catalog  │ content  │  orders  │      │  (schemas)
+    │  └──────────┴──────────┴──────────┴──────────┘      │
     └─────────────────────────────────────────────────────┘
 ```
 
 ### **Module Isolation**
 
 Each module has:
-- **Separate Schema**: `identity`, `catalog`, `content`
+- **Separate Schema**: `identity`, `catalog`, `content`, `orders`
 - **Own Migration History**: `__EFMigrationsHistory_<Module>`
 - **Independent Boundaries**: Modules cannot reference each other
 - **Clean Architecture**: Domain → Application → Infrastructure → API
@@ -130,8 +133,9 @@ Each module has:
 - **FluentValidation** - Request validation pipeline
 - **ImageSharp** - Image processing and optimization
 - **JWT** - Authentication and authorization
+- **Iyzipay** - Payment processing
 
-### **Frontend (Admin Panel)**
+### **Frontend (Storefront + Admin Panel)**
 - **Next.js 15** - React framework with App Router
 - **React 19** - Latest React with Server Components
 - **TypeScript** - Type safety
@@ -161,7 +165,7 @@ Each module has:
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (required for PostgreSQL)
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Node.js 20+](https://nodejs.org/) (for admin panel)
+- [Node.js 20+](https://nodejs.org/) (for the storefront/admin panel)
 - [Visual Studio Code](https://code.visualstudio.com/) (recommended)
 
 ### **Quick Start (5 minutes)**
@@ -181,12 +185,12 @@ dotnet run
 # Backend runs at: http://localhost:8080
 # Swagger UI: http://localhost:8080/swagger
 
-# 4. Start Admin Panel (optional)
+# 4. Start Storefront / Admin Panel
 cd web
 npm install
 npm run dev
 
-# Admin panel: http://localhost:3000
+# Storefront: http://localhost:3000
 ```
 
 ### **Default Admin Credentials**
@@ -213,8 +217,7 @@ Password: AdminPassword123!
 
 ### **Features**
 - [Product Bundles](docs/features/PRODUCT_BUNDLES.md) - Bundle/set products
-- [Price Configuration](docs/features/PRICE_CONFIGURATION.md) - Toggle pricing
-- [B2B Order System](docs/features/B2B_ORDERS.md) - Order management workflow
+- [Netsis Integration](docs/features/NETSIS_INTEGRATION.md) - Product and stock sync from Netsis ERP
 - [Image Processing](docs/features/IMAGE_PROCESSING.md) - Async image handling
 
 ### **Deployment**
@@ -236,8 +239,9 @@ Storefront/
 │   │   └── Storefront.Api/              # Main API host
 │   ├── Modules/
 │   │   ├── Identity/                    # Auth & user management
-│   │   ├── Catalog/                     # Products, categories, bundles
-│   │   └── Content/                     # Blog, pages, SEO
+│   │   ├── Catalog/                     # Products, categories, bundles, Netsis sync
+│   │   ├── Content/                     # Blog, pages, SEO
+│   │   └── Orders/                      # Guest cart, checkout, payments, admin orders
 │   ├── Shared/
 │   │   └── Storefront.SharedKernel/     # Result pattern, common types
 │   └── Infrastructure/
@@ -246,7 +250,7 @@ Storefront/
 │   ├── Storefront.UnitTests/            # Unit tests
 │   ├── Storefront.IntegrationTests/     # API integration tests
 │   └── Storefront.ArchitectureTests/    # Architecture validation
-├── web/                                 # Next.js admin panel
+├── web/                                 # Next.js storefront + admin panel
 ├── docker/                              # Docker configs
 ├── scripts/                             # Database backup/restore
 └── docs/                                # Documentation
@@ -275,7 +279,7 @@ POST   /api/catalog/products/{id}/images               # Upload image
 ### **Bundles**
 ```http
 GET    /api/catalog/products/{id}/bundle               # Get bundle with components
-POST   /api/catalog/products/{id}/components           # Add component to bundle
+POST   /api/catalog/products/{id}/components            # Add component to bundle
 DELETE /api/catalog/products/{bundleId}/components/{componentId} # Remove component
 ```
 
@@ -287,40 +291,35 @@ PUT    /api/catalog/categories/{id}    # Update category
 DELETE /api/catalog/categories/{id}    # Delete category
 ```
 
+### **Guest Cart & Checkout**
+```http
+GET    /api/cart                       # Get guest cart (X-Guest-Id header)
+POST   /api/cart/items                 # Add item to cart
+PUT    /api/cart/items/{itemId}        # Update item quantity
+DELETE /api/cart/items/{itemId}        # Remove item
+POST   /api/cart/checkout              # Create order from cart
+```
+
+### **Payments**
+```http
+POST   /api/b2c/payments/initiate      # Start iyzico payment
+POST   /api/b2c/payments/callback      # iyzico payment callback
+```
+
+### **Admin Orders**
+```http
+GET    /api/admin/orders               # List orders
+GET    /api/admin/orders/{id}          # Order details
+PUT    /api/admin/orders/{id}/status   # Update order status
+POST   /api/admin/orders/{id}/comments # Add order comment
+```
+
+### **Netsis Integration**
+```http
+POST   /api/admin/netsis/sync          # Trigger a product + stock sync
+```
+
 **Full API documentation:** [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
-
----
-
-## 🎨 **Configuration**
-
-### **B2B Mode (Current - No Pricing)**
-
-`appsettings.json`:
-```json
-{
-  "CatalogSettings": {
-    "PricingEnabled": false,
-    "RequirePriceForProducts": false,
-    "ShowPriceLabel": "Contact for Quote",
-    "AllowPriceInquiry": true
-  }
-}
-```
-
-### **E-commerce Mode (With Pricing)**
-
-```json
-{
-  "CatalogSettings": {
-    "PricingEnabled": true,
-    "RequirePriceForProducts": true,
-    "ShowPriceLabel": null,
-    "AllowPriceInquiry": false
-  }
-}
-```
-
-No code changes needed - just toggle the configuration!
 
 ---
 
@@ -393,39 +392,25 @@ Benefits:
 
 [Learn more →](docs/features/PRODUCT_BUNDLES.md)
 
-### **Price Configuration**
+### **Guest Checkout & Payment**
 
-Toggle pricing on/off without code changes:
-
-**B2B Mode** (Quote-based):
-- Products shown without prices
-- "Contact for Quote" button
-- Quote workflow via order comments
-
-**E-commerce Mode**:
-- Prices displayed
-- Add to cart functionality
-- Standard checkout
-
-[Learn more →](docs/features/PRICE_CONFIGURATION.md)
-
-### **B2B Order System** (Coming Soon)
-
-Complete order lifecycle management:
+Customers can add products to a cart and check out without creating an account:
 
 ```
-Request → Review → Quote → Confirm → 
-Prepare → QC → Ship → Deliver
+Browse → Add to Cart → Checkout (delivery details) → iyzico Payment → Order Confirmed
 ```
 
-Features:
-- Order status tracking
-- Communication via comments
-- Payment link sharing
-- Document uploads
-- Partner management
+The cart is tracked by a guest ID (`X-Guest-Id` header) and converted into an order at checkout.
 
-[Learn more →](docs/features/B2B_ORDERS.md)
+### **Netsis Integration**
+
+Keeps the catalog in sync with a Netsis ERP instance:
+
+```
+Netsis WebService → Product Sync (upsert by SKU) → Stock Sync → Catalog
+```
+
+Runs on a schedule or on demand. See [docs/features/NETSIS_INTEGRATION.md](docs/features/NETSIS_INTEGRATION.md) for configuration.
 
 ---
 
@@ -435,37 +420,31 @@ Features:
 - [x] Product management (Simple + Bundles)
 - [x] Category management (hierarchical)
 - [x] Brand management
-- [x] Price configuration toggle
 - [x] Image processing system
 - [x] Search functionality
 - [x] Admin dashboard
 
-### **Phase 2: Order Management** 🚧 **IN PROGRESS**
-- [ ] Order request from partners
-- [ ] Status workflow
-- [ ] Quote management
-- [ ] Comment system
-- [ ] Document attachments
-- [ ] Order tracking
+### **Phase 2: Guest Checkout & Payments** ✅ **COMPLETE**
+- [x] Guest cart
+- [x] Checkout flow
+- [x] iyzico payment integration
+- [x] Order status workflow
+- [x] Comment system
 
-### **Phase 3: Partner Portal** 📋 **PLANNED**
-- [ ] Partner authentication
-- [ ] Partner dashboard
-- [ ] Order history
-- [ ] Quote approval
-- [ ] Communication hub
+### **Phase 3: ERP Integration** ✅ **COMPLETE**
+- [x] Netsis product sync
+- [x] Netsis stock sync
+- [x] Scheduled + manual sync
 
 ### **Phase 4: Mobile App** 📱 **PLANNED**
 - [ ] Browse catalog (React Native / Flutter)
-- [ ] Request orders
+- [ ] Guest checkout
 - [ ] Track order status
-- [ ] Communication with admin
 - [ ] Push notifications
 
 ### **Phase 5: Advanced Features** 🔮 **FUTURE**
 - [ ] Product variants (fabric/color options)
-- [ ] Bulk order import
-- [ ] Payment gateway integration
+- [ ] Customer accounts
 - [ ] Shipping integrations
 - [ ] Analytics dashboard
 
@@ -538,6 +517,7 @@ Built with:
 - [shadcn/ui](https://ui.shadcn.com/)
 - [MediatR](https://github.com/jbogard/MediatR)
 - [ImageSharp](https://sixlabors.com/products/imagesharp/)
+- [Iyzipay](https://www.iyzico.com/)
 
 ---
 
@@ -549,7 +529,3 @@ Built with:
 - 🐳 [Docker Guide](docs/DOCKER.md)
 - 🧪 [Testing Guide](docs/TESTING.md)
 - 🚀 [Deployment Guide](docs/DEPLOYMENT.md)
-
----
-
-**Made with ❤️ for furniture manufacturers embracing digital transformation**

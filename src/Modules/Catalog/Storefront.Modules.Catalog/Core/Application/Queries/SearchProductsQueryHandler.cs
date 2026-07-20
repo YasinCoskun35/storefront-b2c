@@ -97,9 +97,7 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
                 p.IsActive,
                 p.IsFeatured,
                 p.Images.Where(i => i.IsPrimary).Select(i => i.Url).FirstOrDefault(),
-                p.CreatedAt,
-                false,  // PricingEnabled - will be set by handler
-                null    // PriceLabel - will be set by handler
+                p.CreatedAt
             ))
             .ToListAsync(cancellationToken);
 

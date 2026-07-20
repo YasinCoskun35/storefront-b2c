@@ -8,15 +8,7 @@ public class Order
 
     public string OrderNumber { get; set; } = string.Empty; // e.g., "ORD-2024-0001"
 
-    // Order type: QuoteRequest (B2B) or DirectPurchase (B2C)
-    public OrderType OrderType { get; set; } = OrderType.DirectPurchase;
-
-    // B2B Partner Information (nullable — only set for B2B orders)
-    public string? PartnerCompanyId { get; set; }
-    public string? PartnerUserId { get; set; }
-    public string? PartnerCompanyName { get; set; }
-
-    // B2C Guest Information (nullable — only set for B2C orders)
+    // Guest Information
     public string? GuestEmail { get; set; }
     public string? GuestName { get; set; }
     public string? GuestPhone { get; set; }

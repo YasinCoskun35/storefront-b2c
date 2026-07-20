@@ -16,10 +16,8 @@ public record GetAllOrdersQuery(
 public record OrderSummaryDto(
     string Id,
     string OrderNumber,
-    string OrderType,
     string? GuestEmail,
     string? GuestName,
-    string? PartnerCompanyName,
     string Status,
     decimal? TotalAmount,
     string? Currency,
@@ -63,10 +61,8 @@ public class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQuery, Resul
             .Select(o => new OrderSummaryDto(
                 o.Id,
                 o.OrderNumber,
-                o.OrderType.ToString(),
                 o.GuestEmail,
                 o.GuestName,
-                o.PartnerCompanyName,
                 o.Status.ToString(),
                 o.TotalAmount,
                 o.Currency,

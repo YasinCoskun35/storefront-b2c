@@ -47,7 +47,6 @@ public class CreateB2COrderCommandHandler : IRequestHandler<CreateB2COrderComman
         var order = new Order
         {
             OrderNumber = orderNumber,
-            OrderType = OrderType.DirectPurchase,
             GuestEmail = request.GuestEmail,
             GuestName = request.GuestName,
             GuestPhone = request.GuestPhone,
