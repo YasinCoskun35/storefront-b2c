@@ -37,8 +37,7 @@ Start here if you're new to the project:
 Detailed guides for major features:
 
 - **[Product Bundles](features/PRODUCT_BUNDLES.md)** - Create product sets/bundles
-- **[Price Configuration](features/PRICE_CONFIGURATION.md)** - Toggle pricing on/off
-- **[B2B Order System](features/B2B_ORDERS.md)** - Order management workflow (coming soon)
+- **[Netsis Integration](features/NETSIS_INTEGRATION.md)** - Product and stock sync from Netsis ERP
 
 ---
 
@@ -115,8 +114,7 @@ docs/
 ├── DOCKER.md                    # Docker guide
 ├── features/
 │   ├── PRODUCT_BUNDLES.md       # Bundle products
-│   ├── PRICE_CONFIGURATION.md   # Pricing toggle
-│   └── B2B_ORDERS.md            # Order system
+│   └── NETSIS_INTEGRATION.md    # Netsis ERP sync
 └── troubleshooting/
     ├── BUILD_ISSUES.md          # Build problems
     └── DATABASE_ISSUES.md       # DB problems

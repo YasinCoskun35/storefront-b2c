@@ -29,7 +29,7 @@ public class OrderItem
     public decimal? TotalPrice { get; set; } // (UnitPrice * Quantity) - Discount
     
     // Customization
-    public string? CustomizationNotes { get; set; } // Partner's special requests
+    public string? CustomizationNotes { get; set; } // Customer's special requests
     
     // Display Order
     public int DisplayOrder { get; set; } = 0;

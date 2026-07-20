@@ -38,13 +38,9 @@ public class OrdersDbContext : DbContext
             entity.HasKey(c => c.Id);
             entity.Property(c => c.Id).HasMaxLength(450);
 
-            entity.Property(c => c.PartnerUserId).HasMaxLength(450);
-            entity.Property(c => c.PartnerCompanyId).HasMaxLength(450);
             entity.Property(c => c.GuestId).HasMaxLength(450);
 
             entity.HasIndex(c => c.GuestId);
-            entity.HasIndex(c => c.PartnerUserId);
-            entity.HasIndex(c => c.PartnerCompanyId);
         });
     }
 
@@ -88,11 +84,6 @@ public class OrdersDbContext : DbContext
             entity.Property(o => o.Id).HasMaxLength(450);
 
             entity.Property(o => o.OrderNumber).IsRequired().HasMaxLength(50);
-            entity.Property(o => o.OrderType).IsRequired();
-
-            entity.Property(o => o.PartnerCompanyId).HasMaxLength(450);
-            entity.Property(o => o.PartnerUserId).HasMaxLength(450);
-            entity.Property(o => o.PartnerCompanyName).HasMaxLength(200);
 
             entity.Property(o => o.GuestEmail).HasMaxLength(256);
             entity.Property(o => o.GuestName).HasMaxLength(200);
@@ -120,8 +111,6 @@ public class OrdersDbContext : DbContext
             entity.Property(o => o.ShippingProvider).HasMaxLength(100);
 
             entity.HasIndex(o => o.OrderNumber).IsUnique();
-            entity.HasIndex(o => o.PartnerCompanyId);
-            entity.HasIndex(o => o.PartnerUserId);
             entity.HasIndex(o => o.GuestEmail);
             entity.HasIndex(o => o.Status);
             entity.HasIndex(o => o.CreatedAt);

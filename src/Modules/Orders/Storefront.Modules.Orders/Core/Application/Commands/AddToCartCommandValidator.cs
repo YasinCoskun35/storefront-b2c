@@ -6,11 +6,8 @@ public class AddToCartCommandValidator : AbstractValidator<AddToCartCommand>
 {
     public AddToCartCommandValidator()
     {
-        RuleFor(x => x.PartnerUserId)
-            .NotEmpty().WithMessage("Partner user ID is required");
-
-        RuleFor(x => x.PartnerCompanyId)
-            .NotEmpty().WithMessage("Partner company ID is required");
+        RuleFor(x => x.GuestId)
+            .NotEmpty().WithMessage("Guest ID is required");
 
         RuleFor(x => x.ProductId)
             .NotEmpty().WithMessage("Product ID is required");

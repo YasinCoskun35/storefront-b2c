@@ -7,7 +7,6 @@ namespace Storefront.Modules.Orders.Core.Application.Commands;
 
 public record RemoveCartItemCommand(
     string CartItemId,
-    string? PartnerUserId = null,
     string? GuestId = null
 ) : IRequest<Result>;
 
@@ -32,9 +31,6 @@ public class RemoveCartItemCommandHandler : IRequestHandler<RemoveCartItemComman
         var cart = cartItem.Cart;
 
         // Verify ownership
-        if (!string.IsNullOrEmpty(request.PartnerUserId) && cart.PartnerUserId != request.PartnerUserId)
-            return Error.Failure("Cart.Unauthorized", "Not authorized to modify this cart");
-
         if (!string.IsNullOrEmpty(request.GuestId) && cart.GuestId != request.GuestId)
             return Error.Failure("Cart.Unauthorized", "Not authorized to modify this cart");
 

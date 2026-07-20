@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ArrowLeft, MapPin, Calendar, Package, Truck, Edit, DollarSign } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Package, Truck, Edit, User } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminOrderDetailsPage({
@@ -32,7 +32,6 @@ export default function AdminOrderDetailsPage({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showStatusDialog, setShowStatusDialog] = useState(false);
-  const [showPricingDialog, setShowPricingDialog] = useState(false);
   const [newStatus, setNewStatus] = useState<OrderStatus>(OrderStatus.Pending);
   const [statusNotes, setStatusNotes] = useState("");
 
@@ -119,21 +118,18 @@ export default function AdminOrderDetailsPage({
             <span className="text-sm text-gray-600">
               Created {new Date(order.createdAt).toLocaleDateString()}
             </span>
-            <span className="text-sm text-gray-600">•</span>
-            <span className="text-sm font-medium text-gray-900">
-              {order.partnerCompanyName}
-            </span>
+            {(order.guestName || order.guestEmail) && (
+              <>
+                <span className="text-sm text-gray-600">•</span>
+                <span className="text-sm font-medium text-gray-900">
+                  {order.guestName || order.guestEmail}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowPricingDialog(true)}
-          >
-            <DollarSign className="w-4 h-4 mr-2" />
-            Set Pricing
-          </Button>
           <Button onClick={() => setShowStatusDialog(true)}>
             <Edit className="w-4 h-4 mr-2" />
             Update Status
@@ -203,14 +199,19 @@ export default function AdminOrderDetailsPage({
 
         {/* Right Column */}
         <div className="space-y-6">
-          {/* Partner Company */}
+          {/* Customer */}
           <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-3">Partner Company</h2>
-            <div className="text-sm">
-              <p className="font-medium">{order.partnerCompanyName}</p>
-              <p className="text-gray-600 text-xs mt-1">
-                Company ID: {order.partnerCompanyId}
-              </p>
+            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Customer
+            </h2>
+            <div className="text-sm space-y-1">
+              {order.guestName && <p className="font-medium">{order.guestName}</p>}
+              {order.guestEmail && <p className="text-gray-600">{order.guestEmail}</p>}
+              {order.guestPhone && <p className="text-gray-600">{order.guestPhone}</p>}
+              {!order.guestName && !order.guestEmail && !order.guestPhone && (
+                <p className="text-gray-500">No customer information available</p>
+              )}
             </div>
           </Card>
 
@@ -301,7 +302,7 @@ export default function AdminOrderDetailsPage({
           </Card>
 
           {/* Pricing */}
-          {order.totalAmount ? (
+          {order.totalAmount != null && (
             <Card className="p-6 bg-purple-50">
               <h2 className="text-lg font-semibold mb-4">Order Total</h2>
               <div className="space-y-2 text-sm">
@@ -335,26 +336,12 @@ export default function AdminOrderDetailsPage({
                 </div>
               </div>
             </Card>
-          ) : (
-            <Card className="p-6 bg-yellow-50">
-              <h2 className="text-lg font-semibold mb-2">Pricing Pending</h2>
-              <p className="text-sm text-gray-700 mb-4">
-                Set pricing for this order to send quote to partner
-              </p>
-              <Button
-                onClick={() => setShowPricingDialog(true)}
-                size="sm"
-                className="w-full"
-              >
-                Set Pricing
-              </Button>
-            </Card>
           )}
 
-          {/* Internal Notes */}
+          {/* Notes */}
           {order.notes && (
             <Card className="p-6">
-              <h2 className="text-lg font-semibold mb-3">Partner Notes</h2>
+              <h2 className="text-lg font-semibold mb-3">Notes</h2>
               <p className="text-sm text-gray-700 whitespace-pre-wrap">
                 {order.notes}
               </p>
@@ -417,26 +404,6 @@ export default function AdminOrderDetailsPage({
             >
               {updateStatusMutation.isPending ? "Updating..." : "Update Status"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Pricing Dialog */}
-      <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Set Order Pricing</DialogTitle>
-            <DialogDescription>
-              Feature coming soon - Set pricing for order {order.orderNumber}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-gray-600">
-              This feature will allow you to set individual item prices, shipping costs, taxes, and discounts.
-            </p>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setShowPricingDialog(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

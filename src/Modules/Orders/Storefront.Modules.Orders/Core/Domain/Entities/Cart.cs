@@ -4,11 +4,7 @@ public class Cart
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    // B2B Partner Information (nullable — only set for partner carts)
-    public string? PartnerUserId { get; set; }
-    public string? PartnerCompanyId { get; set; }
-
-    // B2C Guest Information (nullable — only set for guest carts)
+    // Guest Information
     public string? GuestId { get; set; }
 
     // Status

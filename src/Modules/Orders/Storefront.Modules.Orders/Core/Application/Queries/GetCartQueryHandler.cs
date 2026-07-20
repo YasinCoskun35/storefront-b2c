@@ -16,14 +16,10 @@ public class GetCartQueryHandler : IRequestHandler<GetCartQuery, Result<CartDto>
 
     public async Task<Result<CartDto>> Handle(GetCartQuery request, CancellationToken cancellationToken)
     {
-        var query = _context.Carts.Include(c => c.Items).Where(c => c.IsActive);
-
-        if (!string.IsNullOrEmpty(request.GuestId))
-            query = query.Where(c => c.GuestId == request.GuestId);
-        else
-            query = query.Where(c => c.PartnerUserId == request.PartnerUserId);
-
-        var cart = await query.FirstOrDefaultAsync(cancellationToken);
+        var cart = await _context.Carts
+            .Include(c => c.Items)
+            .Where(c => c.IsActive && c.GuestId == request.GuestId)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (cart is null)
         {

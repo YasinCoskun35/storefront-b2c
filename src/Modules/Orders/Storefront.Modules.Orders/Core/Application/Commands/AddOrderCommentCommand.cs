@@ -10,7 +10,7 @@ public record AddOrderCommentCommand(
     CommentType Type,
     string AuthorId,
     string AuthorName,
-    string AuthorType, // "Admin" or "Partner"
+    string AuthorType, // "Admin", "Guest", or "System"
     bool IsInternal,
     string? AttachmentUrl,
     string? AttachmentFileName

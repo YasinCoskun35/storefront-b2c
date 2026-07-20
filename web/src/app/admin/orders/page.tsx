@@ -38,7 +38,7 @@ export default function AdminOrdersPage() {
         <div>
           <h1 className="text-3xl font-bold">Order Management</h1>
           <p className="text-gray-600 mt-1">
-            Review and manage all partner orders
+            Review and manage all customer orders
           </p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function AdminOrdersPage() {
           <p className="text-gray-600">
             {searchTerm || statusFilter
               ? "Try adjusting your search or filters"
-              : "Orders will appear here once partners create them"}
+              : "Orders will appear here once customers place them"}
           </p>
         </Card>
       ) : (
