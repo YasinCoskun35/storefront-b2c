@@ -1,68 +1,216 @@
 import Link from "next/link";
+import { ArrowRight, Package, ShieldCheck, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ProductCard } from "@/components/products/product-card";
+import { catalogApi } from "@/lib/api";
 
-export default function HomePage() {
+const VALUE_PROPS = [
+  {
+    icon: Truck,
+    title: "Fast Delivery",
+    description: "Reliable shipping straight to your door or job site.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Secure Payment",
+    description: "Checkout is processed securely through iyzico.",
+  },
+  {
+    icon: Wrench,
+    title: "Professional Grade",
+    description: "A curated catalog of durable, dependable tools.",
+  },
+  {
+    icon: Package,
+    title: "Always in Stock",
+    description: "Live inventory so you know what's available now.",
+  },
+];
+
+export default async function HomePage() {
+  const [categoriesResult, productsResult] = await Promise.allSettled([
+    catalogApi.getCategories(),
+    catalogApi.searchProducts({ isActive: true, pageSize: 8 }),
+  ]);
+
+  const categories =
+    categoriesResult.status === "fulfilled"
+      ? categoriesResult.value
+          .filter((c) => c.isActive)
+          .sort((a, b) => a.displayOrder - b.displayOrder)
+          .slice(0, 6)
+      : [];
+
+  const featuredProducts =
+    productsResult.status === "fulfilled"
+      ? [...productsResult.value.items]
+          .sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured))
+          .slice(0, 8)
+      : [];
+
   return (
-    <div className="container mx-auto px-4 py-16">
-      {/* Hero Section */}
-      <section className="text-center space-y-6 py-12">
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-          Quality Hardware & Tools
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Discover our extensive collection of professional-grade tools and
-          equipment for your next project.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link href="/products">
-            <Button size="lg">
-              Browse Products
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-          <Link href="/about">
-            <Button size="lg" variant="outline">
-              Learn More
-            </Button>
-          </Link>
+    <div>
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b bg-secondary text-secondary-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 15% 20%, hsl(var(--primary)) 0%, transparent 35%), radial-gradient(circle at 85% 80%, hsl(var(--accent)) 0%, transparent 35%)",
+          }}
+        />
+        <div className="container relative mx-auto px-4 py-20 md:py-28">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex items-center rounded-full border border-secondary-foreground/20 bg-secondary-foreground/5 px-3 py-1 text-xs font-medium uppercase tracking-wide text-secondary-foreground/70">
+              Quality Hardware &amp; Tools
+            </span>
+            <h1 className="mt-6 font-display text-4xl font-bold tracking-tight text-balance md:text-6xl">
+              Everything you need to{" "}
+              <span className="text-primary">get the job done</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-lg text-secondary-foreground/70">
+              Professional-grade tools and equipment for tradespeople and DIY
+              enthusiasts alike, delivered fast and paid for securely.
+            </p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link href="/products">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Browse Products
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/about">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full border-secondary-foreground/20 bg-transparent text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground sm:w-auto"
+                >
+                  Learn More
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Categories Preview */}
-      <section className="py-12">
-        <h2 className="text-3xl font-bold mb-8">Shop by Category</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link
-            href="/products?category=power-tools"
-            className="group relative overflow-hidden rounded-lg border bg-card p-6 hover:shadow-lg transition-shadow"
-          >
-            <h3 className="text-xl font-semibold mb-2">Power Tools</h3>
-            <p className="text-muted-foreground">
-              Electric and battery-powered tools for professionals
+      {/* Value props */}
+      <section className="border-b bg-muted/40">
+        <div className="container mx-auto grid grid-cols-2 gap-6 px-4 py-10 md:grid-cols-4">
+          {VALUE_PROPS.map(({ icon: Icon, title, description }) => (
+            <div key={title} className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+              <h3 className="font-display text-sm font-semibold">{title}</h3>
+              <p className="hidden text-sm text-muted-foreground md:block">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Categories */}
+      {categories.length > 0 && (
+        <section className="container mx-auto px-4 py-16">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="font-display text-3xl font-bold">Shop by Category</h2>
+              <p className="mt-1 text-muted-foreground">
+                Find exactly what your project needs.
+              </p>
+            </div>
+            <Link
+              href="/products"
+              className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:flex"
+            >
+              View all products
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/products?categoryId=${category.id}`}
+                className="group relative flex items-center justify-between overflow-hidden rounded-xl border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg"
+              >
+                <div>
+                  <h3 className="font-display text-lg font-semibold text-foreground">
+                    {category.name}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {category.productCount} {category.productCount === 1 ? "product" : "products"}
+                  </p>
+                </div>
+                <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Featured products */}
+      {featuredProducts.length > 0 && (
+        <section className="border-t bg-muted/30">
+          <div className="container mx-auto px-4 py-16">
+            <div className="mb-8 flex items-end justify-between">
+              <div>
+                <h2 className="font-display text-3xl font-bold">Featured Products</h2>
+                <p className="mt-1 text-muted-foreground">
+                  Popular picks from our catalog.
+                </p>
+              </div>
+              <Link
+                href="/products"
+                className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:flex"
+              >
+                View all products
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.name}
+                  price={product.price}
+                  compareAtPrice={product.compareAtPrice}
+                  image={product.primaryImageUrl}
+                  stockStatus={product.stockStatus}
+                  category={product.categoryName}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA banner */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="flex flex-col items-center gap-6 rounded-2xl bg-primary px-6 py-12 text-center text-primary-foreground sm:flex-row sm:justify-between sm:text-left">
+          <div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              Ready to start your next project?
+            </h2>
+            <p className="mt-2 text-primary-foreground/90">
+              Browse the full catalog and check out in minutes.
             </p>
-          </Link>
-          <Link
-            href="/products?category=hand-tools"
-            className="group relative overflow-hidden rounded-lg border bg-card p-6 hover:shadow-lg transition-shadow"
-          >
-            <h3 className="text-xl font-semibold mb-2">Hand Tools</h3>
-            <p className="text-muted-foreground">
-              Quality manual tools for precision work
-            </p>
-          </Link>
-          <Link
-            href="/products?category=safety"
-            className="group relative overflow-hidden rounded-lg border bg-card p-6 hover:shadow-lg transition-shadow"
-          >
-            <h3 className="text-xl font-semibold mb-2">Safety Equipment</h3>
-            <p className="text-muted-foreground">
-              Protective gear and safety accessories
-            </p>
+          </div>
+          <Link href="/products">
+            <Button
+              size="lg"
+              variant="secondary"
+              className="whitespace-nowrap bg-white text-primary hover:bg-white/90"
+            >
+              Shop Now
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </Link>
         </div>
       </section>
     </div>
   );
 }
-

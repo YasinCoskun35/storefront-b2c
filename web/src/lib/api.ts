@@ -159,6 +159,7 @@ export const catalogApi = {
     brandId?: string;
     minPrice?: number;
     maxPrice?: number;
+    isActive?: boolean;
     pageNumber?: number;
     pageSize?: number;
   }): Promise<PagedResult<Product>> => {

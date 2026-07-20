@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminOrdersApi, CommentType, OrderStatus, ORDER_STATUS_LABELS } from "@/lib/api/orders";
@@ -27,8 +27,9 @@ import { toast } from "sonner";
 export default function AdminOrderDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showStatusDialog, setShowStatusDialog] = useState(false);
@@ -36,16 +37,16 @@ export default function AdminOrderDetailsPage({
   const [statusNotes, setStatusNotes] = useState("");
 
   const { data: order, isLoading } = useQuery({
-    queryKey: ["admin-order", params.id],
-    queryFn: () => adminOrdersApi.getOrderDetails(params.id),
+    queryKey: ["admin-order", id],
+    queryFn: () => adminOrdersApi.getOrderDetails(id),
   });
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ status, notes }: { status: number; notes?: string }) =>
-      adminOrdersApi.updateOrderStatus(params.id, status, notes),
+      adminOrdersApi.updateOrderStatus(id, status, notes),
     onSuccess: () => {
       toast.success("Order status updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["admin-order", params.id] });
+      queryClient.invalidateQueries({ queryKey: ["admin-order", id] });
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       setShowStatusDialog(false);
       setStatusNotes("");
@@ -57,10 +58,10 @@ export default function AdminOrderDetailsPage({
 
   const addCommentMutation = useMutation({
     mutationFn: ({ content, type, isInternal }: { content: string; type: CommentType; isInternal: boolean }) =>
-      adminOrdersApi.addComment(params.id, content, type, isInternal),
+      adminOrdersApi.addComment(id, content, type, isInternal),
     onSuccess: () => {
       toast.success("Comment added successfully");
-      queryClient.invalidateQueries({ queryKey: ["admin-order", params.id] });
+      queryClient.invalidateQueries({ queryKey: ["admin-order", id] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to add comment");

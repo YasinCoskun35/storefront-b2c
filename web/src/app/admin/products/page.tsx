@@ -22,13 +22,15 @@ export default function AdminProductsPage() {
     {
       header: "Image",
       accessor: (row: Product) => (
-        <div className="relative h-12 w-12 rounded overflow-hidden">
-          <Image
-            src={getImageUrl(row.primaryImageUrl)}
-            alt={row.name}
-            fill
-            className="object-cover"
-          />
+        <div className="relative h-12 w-12 rounded overflow-hidden bg-muted">
+          {row.primaryImageUrl && (
+            <Image
+              src={getImageUrl(row.primaryImageUrl)}
+              alt={row.name}
+              fill
+              className="object-cover"
+            />
+          )}
         </div>
       ),
     },

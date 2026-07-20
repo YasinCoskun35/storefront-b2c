@@ -1,66 +1,47 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { ShoppingCart } from "lucide-react";
+import { StockBadge, type StockStatus } from "@/components/products/stock-badge";
+import { ProductImage } from "@/components/products/product-image";
+import { formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
   name: string;
-  price: number;
-  image: string;
-  stockStatus: "InStock" | "LowStock" | "OutOfStock";
+  price: number | null | undefined;
+  compareAtPrice?: number | null;
+  image?: string;
+  stockStatus: StockStatus;
   category?: string;
 }
-
-const stockConfig = {
-  InStock: {
-    label: "In Stock",
-    variant: "default" as const,
-    className: "bg-success text-success-foreground hover:bg-success/90",
-  },
-  LowStock: {
-    label: "Low Stock",
-    variant: "secondary" as const,
-    className: "bg-warning text-warning-foreground hover:bg-warning/90",
-  },
-  OutOfStock: {
-    label: "Out of Stock",
-    variant: "destructive" as const,
-    className: "bg-destructive text-destructive-foreground",
-  },
-};
 
 export function ProductCard({
   id,
   name,
   price,
+  compareAtPrice,
   image,
   stockStatus,
   category,
 }: ProductCardProps) {
-  const stock = stockConfig[stockStatus];
+  const hasDiscount = price != null && compareAtPrice != null && compareAtPrice > price;
 
   return (
-    <Card className="group relative flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lg">
+    <Card className="group relative flex h-full flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg">
       {/* Image */}
-      <Link href={`/products/${id}`} className="relative block">
+      <Link href={`/products/${id}`} className="relative block" tabIndex={-1}>
         <div className="relative aspect-square overflow-hidden bg-muted">
-          <Image
-            src={image || "/placeholder.jpg"}
+          <ProductImage
+            src={image}
             alt={name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            className="transition-transform duration-300 group-hover:scale-105"
           />
-          
-          {/* Stock Badge */}
+
           <div className="absolute right-2 top-2">
-            <Badge className={stock.className}>{stock.label}</Badge>
+            <StockBadge status={stockStatus} />
           </div>
 
-          {/* Category Badge */}
           {category && (
             <div className="absolute left-2 top-2">
               <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
@@ -74,7 +55,7 @@ export function ProductCard({
       {/* Content */}
       <CardContent className="flex-1 p-4">
         <Link href={`/products/${id}`}>
-          <h3 className="font-display text-lg font-semibold text-foreground line-clamp-2 transition-colors hover:text-primary">
+          <h3 className="font-display text-base font-semibold leading-snug text-foreground line-clamp-2 transition-colors hover:text-primary">
             {name}
           </h3>
         </Link>
@@ -83,19 +64,26 @@ export function ProductCard({
       {/* Footer */}
       <CardFooter className="flex items-center justify-between gap-2 p-4 pt-0">
         <div className="flex flex-col">
-          <span className="text-2xl font-bold text-primary">
-            ${price.toFixed(2)}
-          </span>
+          {price != null ? (
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl font-bold text-foreground">{formatPrice(price)}</span>
+              {hasDiscount && (
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(compareAtPrice!)}
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="text-sm text-muted-foreground">Price unavailable</span>
+          )}
         </div>
-        
-        <Button 
-          size="sm" 
-          disabled={stockStatus === "OutOfStock"}
-          className="gap-2"
+
+        <Link
+          href={`/products/${id}`}
+          className="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
-          <ShoppingCart className="h-4 w-4" />
-          View
-        </Button>
+          View details
+        </Link>
       </CardFooter>
     </Card>
   );
