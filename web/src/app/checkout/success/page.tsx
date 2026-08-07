@@ -1,39 +1,53 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { clearGuestId } from "@/lib/api/b2c-cart";
+import { notifyCartUpdated } from "@/lib/cart-events";
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
   useEffect(() => {
     // Clear guest cart after successful payment
     clearGuestId();
+    notifyCartUpdated();
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-16 text-center space-y-6 max-w-lg">
-      <CheckCircle className="mx-auto h-20 w-20 text-green-500" />
-      <h1 className="text-3xl font-bold">Payment Successful!</h1>
-      <p className="text-muted-foreground">
+    <div className="container mx-auto max-w-lg px-4 py-20 text-center">
+      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
+        <CheckCircle2 className="h-11 w-11 text-success" strokeWidth={1.5} />
+      </div>
+      <h1 className="mt-6 font-display text-3xl font-bold">Payment Successful!</h1>
+      <p className="mt-3 text-muted-foreground">
         Thank you for your order. Your payment has been processed successfully.
-        {orderId && (
-          <span className="block mt-2 text-sm font-mono">Order ID: {orderId}</span>
-        )}
       </p>
-      <p className="text-muted-foreground text-sm">
+      {orderId && (
+        <p className="mt-3 rounded-lg border bg-muted/50 px-4 py-2 font-mono text-sm">
+          Order ID: {orderId}
+        </p>
+      )}
+      <p className="mt-4 text-sm text-muted-foreground">
         You will receive a confirmation email shortly.
       </p>
-      <div className="flex gap-4 justify-center">
+      <div className="mt-8 flex justify-center gap-4">
         <Link href="/products">
           <Button size="lg">Continue Shopping</Button>
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={null}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
