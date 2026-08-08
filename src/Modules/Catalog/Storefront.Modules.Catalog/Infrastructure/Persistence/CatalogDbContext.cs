@@ -107,16 +107,19 @@ public class CatalogDbContext : DbContext
             entity.HasIndex(p => p.StockStatus);
             entity.HasIndex(p => p.ProductType);
 
-            // Trigram indexes for fuzzy search (GIN indexes)
-            entity.HasIndex(p => p.Name)
+            // Trigram indexes for fuzzy search (GIN indexes).
+            // Named distinctly so they don't merge with the plain btree indexes on
+            // the same columns (SKU already has a UNIQUE btree index above — a GIN
+            // index cannot be unique, so it must be a separate, named index).
+            entity.HasIndex(p => p.Name, "IX_Products_Name_Trgm")
                 .HasMethod("gin")
                 .HasOperators("gin_trgm_ops");
 
-            entity.HasIndex(p => p.Description)
+            entity.HasIndex(p => p.Description, "IX_Products_Description_Trgm")
                 .HasMethod("gin")
                 .HasOperators("gin_trgm_ops");
 
-            entity.HasIndex(p => p.SKU)
+            entity.HasIndex(p => p.SKU, "IX_Products_SKU_Trgm")
                 .HasMethod("gin")
                 .HasOperators("gin_trgm_ops");
         });

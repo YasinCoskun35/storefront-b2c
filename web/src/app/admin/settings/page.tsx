@@ -1,95 +1,302 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Trash2, ArrowUp, ArrowDown, Upload } from "lucide-react";
+import { settingsApi, type SliderSlide, type StoreSettings } from "@/lib/api";
+import { getImageUrl } from "@/lib/utils";
+
+const EMPTY_SETTINGS: StoreSettings = {
+  storeName: "",
+  contactEmail: "",
+  contactPhone: "",
+  address: "",
+  whatsAppNumber: "",
+  whatsAppMessage: "",
+  instagramUrl: "",
+  facebookUrl: "",
+  logoUrl: "",
+  slides: [],
+};
 
 export default function AdminSettingsPage() {
-  const [storeName, setStoreName] = useState("Storefront");
-  const [storeEmail, setStoreEmail] = useState("info@storefront.com");
-  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const [settings, setSettings] = useState<StoreSettings>(EMPTY_SETTINGS);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSaveSettings = async () => {
+  useEffect(() => {
+    settingsApi
+      .get()
+      .then((data) => setSettings({ ...EMPTY_SETTINGS, ...data, slides: data.slides ?? [] }))
+      .catch(() => toast({ title: "Failed to load settings", variant: "destructive" }))
+      .finally(() => setLoading(false));
+  }, [toast]);
+
+  const setField = <K extends keyof StoreSettings>(key: K, value: StoreSettings[K]) =>
+    setSettings((prev) => ({ ...prev, [key]: value }));
+
+  const updateSlide = (index: number, patch: Partial<SliderSlide>) =>
+    setSettings((prev) => ({
+      ...prev,
+      slides: prev.slides.map((s, i) => (i === index ? { ...s, ...patch } : s)),
+    }));
+
+  const addSlide = () =>
+    setSettings((prev) => ({ ...prev, slides: [...prev.slides, { imageUrl: "" }] }));
+
+  const removeSlide = (index: number) =>
+    setSettings((prev) => ({ ...prev, slides: prev.slides.filter((_, i) => i !== index) }));
+
+  const moveSlide = (index: number, dir: -1 | 1) =>
+    setSettings((prev) => {
+      const target = index + dir;
+      if (target < 0 || target >= prev.slides.length) return prev;
+      const slides = [...prev.slides];
+      [slides[index], slides[target]] = [slides[target], slides[index]];
+      return { ...prev, slides };
+    });
+
+  const handleSave = async () => {
+    // Drop slides without an image before saving.
+    const cleaned: StoreSettings = {
+      ...settings,
+      slides: settings.slides.filter((s) => s.imageUrl.trim().length > 0),
+    };
     setIsSaving(true);
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const saved = await settingsApi.update(cleaned);
+      setSettings({ ...EMPTY_SETTINGS, ...saved, slides: saved.slides ?? [] });
+      toast({ title: "Settings saved", description: "Your store settings have been updated." });
+    } catch {
+      toast({ title: "Save failed", description: "Could not save settings.", variant: "destructive" });
+    } finally {
       setIsSaving(false);
-      toast({
-        title: "Settings saved",
-        description: "Your store settings have been updated successfully.",
-      });
-    }, 1000);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Loading settings...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold text-secondary">Settings</h1>
-        <p className="text-muted-foreground">Manage your store settings</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-secondary">Settings</h1>
+          <p className="text-muted-foreground">Manage your store details, WhatsApp, and homepage slider</p>
+        </div>
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
       </div>
 
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>General Settings</CardTitle>
-            <CardDescription>
-              Configure your store information
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="storeName">Store Name</Label>
-              <Input 
-                id="storeName"
-                value={storeName}
-                onChange={(e) => setStoreName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="storeEmail">Store Email</Label>
-              <Input 
-                id="storeEmail"
-                type="email"
-                value={storeEmail}
-                onChange={(e) => setStoreEmail(e.target.value)}
-              />
-            </div>
-            <Button onClick={handleSaveSettings} disabled={isSaving}>
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSaving ? "Saving..." : "Save Changes"}
-            </Button>
-          </CardContent>
-        </Card>
+      {/* General */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Store Information</CardTitle>
+          <CardDescription>Shown across the storefront and in the footer.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <Field label="Store Name">
+            <Input value={settings.storeName} onChange={(e) => setField("storeName", e.target.value)} />
+          </Field>
+          <Field label="Contact Email">
+            <Input type="email" value={settings.contactEmail ?? ""} onChange={(e) => setField("contactEmail", e.target.value)} />
+          </Field>
+          <Field label="Contact Phone">
+            <Input value={settings.contactPhone ?? ""} onChange={(e) => setField("contactPhone", e.target.value)} />
+          </Field>
+          <Field label="Address">
+            <Input value={settings.address ?? ""} onChange={(e) => setField("address", e.target.value)} />
+          </Field>
+          <Field label="Instagram URL">
+            <Input value={settings.instagramUrl ?? ""} onChange={(e) => setField("instagramUrl", e.target.value)} placeholder="https://instagram.com/..." />
+          </Field>
+          <Field label="Facebook URL">
+            <Input value={settings.facebookUrl ?? ""} onChange={(e) => setField("facebookUrl", e.target.value)} placeholder="https://facebook.com/..." />
+          </Field>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>API Configuration</CardTitle>
-            <CardDescription>
-              API endpoint and authentication settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="apiUrl">API Base URL</Label>
-              <Input 
-                id="apiUrl"
-                defaultValue="http://localhost:8080" 
-                disabled 
-              />
+      {/* WhatsApp */}
+      <Card>
+        <CardHeader>
+          <CardTitle>WhatsApp</CardTitle>
+          <CardDescription>
+            Powers the floating chat button and product enquiries. Enter the number in
+            international format (country code + number), e.g. <code>905551112233</code>.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <Field label="WhatsApp Number">
+            <Input value={settings.whatsAppNumber ?? ""} onChange={(e) => setField("whatsAppNumber", e.target.value)} placeholder="905551112233" />
+          </Field>
+          <Field label="Default Message (optional)">
+            <Input value={settings.whatsAppMessage ?? ""} onChange={(e) => setField("whatsAppMessage", e.target.value)} placeholder="Hi! I'd like to ask about..." />
+          </Field>
+        </CardContent>
+      </Card>
+
+      {/* Slider */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Homepage Slider</CardTitle>
+              <CardDescription>Images shown at the top of the homepage. Leave empty to use the default hero.</CardDescription>
             </div>
-            <p className="text-sm text-muted-foreground">
-              API configuration is managed through environment variables
-            </p>
-          </CardContent>
-        </Card>
+            <Button type="button" variant="outline" size="sm" onClick={addSlide}>
+              <Plus className="mr-1.5 h-4 w-4" /> Add Slide
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {settings.slides.length === 0 && (
+            <p className="text-sm text-muted-foreground">No slides yet. Add one to build your slider.</p>
+          )}
+          {settings.slides.map((slide, i) => (
+            <SlideEditor
+              key={i}
+              index={i}
+              slide={slide}
+              total={settings.slides.length}
+              onChange={(patch) => updateSlide(i, patch)}
+              onRemove={() => removeSlide(i)}
+              onMove={(dir) => moveSlide(i, dir)}
+              onUploadError={() => toast({ title: "Upload failed", variant: "destructive" })}
+            />
+          ))}
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end">
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
       </div>
     </div>
   );
 }
 
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function SlideEditor({
+  index,
+  slide,
+  total,
+  onChange,
+  onRemove,
+  onMove,
+  onUploadError,
+}: {
+  index: number;
+  slide: SliderSlide;
+  total: number;
+  onChange: (patch: Partial<SliderSlide>) => void;
+  onRemove: () => void;
+  onMove: (dir: -1 | 1) => void;
+  onUploadError: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const preview = getImageUrl(slide.imageUrl);
+
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { url } = await settingsApi.uploadImage(file);
+      onChange({ imageUrl: url });
+    } catch {
+      onUploadError();
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-sm font-medium">Slide {index + 1}</span>
+        <div className="flex items-center gap-1">
+          <Button type="button" variant="ghost" size="icon" disabled={index === 0} onClick={() => onMove(-1)}>
+            <ArrowUp className="h-4 w-4" />
+          </Button>
+          <Button type="button" variant="ghost" size="icon" disabled={index === total - 1} onClick={() => onMove(1)}>
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+          <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={onRemove}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-[200px_1fr]">
+        <div>
+          <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-md border bg-muted">
+            {preview ? (
+              <Image src={preview} alt={slide.headline || `Slide ${index + 1}`} fill className="object-cover" sizes="200px" />
+            ) : (
+              <span className="text-xs text-muted-foreground">No image</span>
+            )}
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleFile(e.target.files?.[0])}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2 w-full"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+          >
+            {uploading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Upload className="mr-1.5 h-4 w-4" />}
+            {uploading ? "Uploading..." : "Upload image"}
+          </Button>
+        </div>
+
+        <div className="space-y-3">
+          <Field label="Headline">
+            <Input value={slide.headline ?? ""} onChange={(e) => onChange({ headline: e.target.value })} placeholder="Big seasonal sale" />
+          </Field>
+          <Field label="Subtext">
+            <Textarea rows={2} value={slide.subtext ?? ""} onChange={(e) => onChange({ subtext: e.target.value })} placeholder="Short supporting line" />
+          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Button Label">
+              <Input value={slide.ctaLabel ?? ""} onChange={(e) => onChange({ ctaLabel: e.target.value })} placeholder="Shop now" />
+            </Field>
+            <Field label="Button Link">
+              <Input value={slide.ctaLink ?? ""} onChange={(e) => onChange({ ctaLink: e.target.value })} placeholder="/products" />
+            </Field>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

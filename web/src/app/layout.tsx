@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { AuthProvider } from "@/lib/auth-context";
 import { Toaster } from "@/components/ui/toaster";
+import { WhatsAppFloat } from "@/components/whatsapp-float";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
+            <WhatsAppFloat />
             <Toaster />
           </QueryProvider>
         </AuthProvider>

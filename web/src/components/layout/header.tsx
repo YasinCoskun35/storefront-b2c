@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ENABLE_ORDERING } from "@/lib/config";
 import { CartCountBadge, useCartCount } from "./cart-badge";
 
 const NAV_LINKS = [
@@ -145,14 +146,16 @@ export function Header() {
             <span className="sr-only">Toggle search</span>
           </Button>
 
-          {/* Cart */}
-          <Link href="/cart" className="relative ml-1">
-            <Button size="icon" variant="ghost">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="sr-only">Cart</span>
-            </Button>
-            <CartCountBadge count={cartCount} />
-          </Link>
+          {/* Cart (only when ordering is enabled) */}
+          {ENABLE_ORDERING && (
+            <Link href="/cart" className="relative ml-1">
+              <Button size="icon" variant="ghost">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="sr-only">Cart</span>
+              </Button>
+              <CartCountBadge count={cartCount} />
+            </Link>
+          )}
         </div>
       </div>
 

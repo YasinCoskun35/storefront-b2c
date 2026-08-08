@@ -2,7 +2,8 @@ import Link from "next/link";
 import { ArrowRight, Package, ShieldCheck, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/product-card";
-import { catalogApi } from "@/lib/api";
+import { HeroSlider } from "@/components/home/hero-slider";
+import { catalogApi, settingsApi } from "@/lib/api";
 
 const VALUE_PROPS = [
   {
@@ -28,10 +29,14 @@ const VALUE_PROPS = [
 ];
 
 export default async function HomePage() {
-  const [categoriesResult, productsResult] = await Promise.allSettled([
+  const [categoriesResult, productsResult, settingsResult] = await Promise.allSettled([
     catalogApi.getCategories(),
     catalogApi.searchProducts({ isActive: true, pageSize: 8 }),
+    settingsApi.get(),
   ]);
+
+  const slides =
+    settingsResult.status === "fulfilled" ? settingsResult.value.slides ?? [] : [];
 
   const categories =
     categoriesResult.status === "fulfilled"
@@ -50,7 +55,11 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
+      {/* Admin-managed slider takes over the hero when slides are configured */}
+      {slides.length > 0 && <HeroSlider slides={slides} />}
+
+      {/* Default hero (shown when no slider slides are configured) */}
+      {slides.length === 0 && (
       <section className="relative overflow-hidden border-b bg-secondary text-secondary-foreground">
         <div
           aria-hidden
@@ -93,6 +102,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Value props */}
       <section className="border-b bg-muted/40">
