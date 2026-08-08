@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/products/product-image";
@@ -9,9 +9,13 @@ import { formatPrice } from "@/lib/utils";
 import { b2cCartApi } from "@/lib/api/b2c-cart";
 import { notifyCartUpdated } from "@/lib/cart-events";
 import { usePricedCart } from "@/lib/hooks/use-priced-cart";
+import { ENABLE_ORDERING } from "@/lib/config";
 import { toast } from "sonner";
 
 export default function CartPage() {
+  // Ordering is disabled — the cart route is not available in catalog-only mode.
+  if (!ENABLE_ORDERING) notFound();
+
   const { cart, prices, loading, hasAllPrices, subtotal, reload } = usePricedCart();
   const router = useRouter();
 

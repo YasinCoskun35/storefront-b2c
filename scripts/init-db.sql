@@ -10,11 +10,12 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 CREATE SCHEMA IF NOT EXISTS identity;
 CREATE SCHEMA IF NOT EXISTS catalog;
 CREATE SCHEMA IF NOT EXISTS content;
+CREATE SCHEMA IF NOT EXISTS orders;
 
 -- Log initialization
 DO $$
 BEGIN
     RAISE NOTICE 'Storefront database initialized with extensions: uuid-ossp, pg_trgm';
-    RAISE NOTICE 'Schemas created: identity, catalog, content';
+    RAISE NOTICE 'Schemas created: identity, catalog, content, orders';
 END $$;
 

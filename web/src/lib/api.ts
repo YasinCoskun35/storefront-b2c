@@ -3,10 +3,12 @@ import axios, { AxiosInstance } from "axios";
 // Determine if we're running on the server or client
 const isServer = typeof window === "undefined";
 
-// API base URL - use container hostname on server, localhost on client
+// API base URL. On the server use the internal/container URL (API_URL); in the
+// browser use the public API origin (NEXT_PUBLIC_API_URL). Both fall back to
+// localhost for local development.
 const API_BASE_URL = isServer
   ? process.env.API_URL || "http://localhost:8080"
-  : "http://localhost:8080";
+  : process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 // Create axios instance
 export const api: AxiosInstance = axios.create({
@@ -223,6 +225,49 @@ export const contentApi = {
 
   getPageBySlug: async (slug: string): Promise<StaticPage> => {
     const response = await api.get(`/api/content/pages/${slug}`);
+    return response.data;
+  },
+};
+
+// Store settings + homepage slider
+export interface SliderSlide {
+  imageUrl: string;
+  headline?: string;
+  subtext?: string;
+  ctaLabel?: string;
+  ctaLink?: string;
+}
+
+export interface StoreSettings {
+  storeName: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  whatsAppNumber?: string;
+  whatsAppMessage?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  logoUrl?: string;
+  slides: SliderSlide[];
+}
+
+export const settingsApi = {
+  get: async (): Promise<StoreSettings> => {
+    const response = await api.get("/api/content/settings");
+    return response.data;
+  },
+
+  update: async (settings: StoreSettings): Promise<StoreSettings> => {
+    const response = await api.put("/api/content/settings", settings);
+    return response.data;
+  },
+
+  uploadImage: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await api.post("/api/content/settings/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return response.data;
   },
 };

@@ -11,6 +11,7 @@ public class ContentDbContext : DbContext
 
     public DbSet<BlogPost> BlogPosts => Set<BlogPost>();
     public DbSet<StaticPage> StaticPages => Set<StaticPage>();
+    public DbSet<StoreSettings> StoreSettings => Set<StoreSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -21,6 +22,28 @@ public class ContentDbContext : DbContext
 
         ConfigureBlogPost(builder);
         ConfigureStaticPage(builder);
+        ConfigureStoreSettings(builder);
+    }
+
+    private static void ConfigureStoreSettings(ModelBuilder builder)
+    {
+        builder.Entity<StoreSettings>(entity =>
+        {
+            entity.ToTable("StoreSettings");
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.Id).HasMaxLength(450);
+
+            entity.Property(s => s.StoreName).IsRequired().HasMaxLength(200);
+            entity.Property(s => s.ContactEmail).HasMaxLength(256);
+            entity.Property(s => s.ContactPhone).HasMaxLength(50);
+            entity.Property(s => s.Address).HasMaxLength(1000);
+            entity.Property(s => s.WhatsAppNumber).HasMaxLength(30);
+            entity.Property(s => s.WhatsAppMessage).HasMaxLength(500);
+            entity.Property(s => s.InstagramUrl).HasMaxLength(500);
+            entity.Property(s => s.FacebookUrl).HasMaxLength(500);
+            entity.Property(s => s.LogoUrl).HasMaxLength(1000);
+            entity.Property(s => s.SliderSlidesJson).IsRequired().HasColumnType("text");
+        });
     }
 
     private static void ConfigureBlogPost(ModelBuilder builder)

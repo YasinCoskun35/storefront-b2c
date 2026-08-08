@@ -1,12 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { catalogApi } from "@/lib/api";
+import { catalogApi, settingsApi } from "@/lib/api";
 import { formatPrice, getImageUrl } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import { AddToCartSection } from "@/components/products/add-to-cart-section";
+import { ProductInquiry } from "@/components/products/product-inquiry";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { StockBadge } from "@/components/products/stock-badge";
+import { ENABLE_ORDERING } from "@/lib/config";
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -52,6 +54,14 @@ export default async function ProductDetailPage({
   } catch (error) {
     notFound();
   }
+
+  // Store settings power the "ask on WhatsApp" CTA when ordering is disabled.
+  const whatsAppNumber = ENABLE_ORDERING
+    ? undefined
+    : await settingsApi
+        .get()
+        .then((s) => s.whatsAppNumber)
+        .catch(() => undefined);
 
   const specs = [
     product.weight && { label: "Weight", value: `${product.weight} ${product.weightUnit || "kg"}` },
@@ -123,7 +133,15 @@ export default async function ProductDetailPage({
           </div>
 
           <div className="border-t pt-6">
-            <AddToCartSection product={product} />
+            {ENABLE_ORDERING ? (
+              <AddToCartSection product={product} />
+            ) : (
+              <ProductInquiry
+                productName={product.name}
+                stockStatus={product.stockStatus}
+                whatsAppNumber={whatsAppNumber}
+              />
+            )}
           </div>
 
           {product.shortDescription && (

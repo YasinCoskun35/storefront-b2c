@@ -23,9 +23,10 @@ function CheckoutSuccessContent() {
       <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
         <CheckCircle2 className="h-11 w-11 text-success" strokeWidth={1.5} />
       </div>
-      <h1 className="mt-6 font-display text-3xl font-bold">Payment Successful!</h1>
+      <h1 className="mt-6 font-display text-3xl font-bold">Order Received!</h1>
       <p className="mt-3 text-muted-foreground">
-        Thank you for your order. Your payment has been processed successfully.
+        Thank you for your order. We&apos;ve received it and will contact you shortly to
+        confirm the details and arrange payment and delivery.
       </p>
       {orderId && (
         <p className="mt-3 rounded-lg border bg-muted/50 px-4 py-2 font-mono text-sm">
@@ -33,7 +34,7 @@ function CheckoutSuccessContent() {
         </p>
       )}
       <p className="mt-4 text-sm text-muted-foreground">
-        You will receive a confirmation email shortly.
+        Please keep your Order ID for reference.
       </p>
       <div className="mt-8 flex justify-center gap-4">
         <Link href="/products">

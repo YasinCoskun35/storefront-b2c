@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Lock, ShieldCheck } from "lucide-react";
+import { useRouter, notFound } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { ProductImage } from "@/components/products/product-image";
 import { formatPrice } from "@/lib/utils";
 import { b2cCartApi } from "@/lib/api/b2c-cart";
 import { usePricedCart } from "@/lib/hooks/use-priced-cart";
+import { ENABLE_ORDERING } from "@/lib/config";
 import { toast } from "sonner";
 
 interface CheckoutForm {
@@ -28,6 +29,9 @@ interface CheckoutForm {
 }
 
 export default function CheckoutPage() {
+  // Ordering is disabled — checkout is not available in catalog-only mode.
+  if (!ENABLE_ORDERING) notFound();
+
   const router = useRouter();
   const { cart, prices, loading, hasAllPrices, subtotal } = usePricedCart();
   const [submitting, setSubmitting] = useState(false);
@@ -72,10 +76,8 @@ export default function CheckoutPage() {
         notes: form.notes || undefined,
       });
 
-      const { paymentPageUrl } = await b2cCartApi.initializePayment(orderId);
-
-      // Redirect to iyzico hosted payment page
-      window.location.href = paymentPageUrl;
+      // No online payment — order is placed and the shop follows up to arrange payment/delivery.
+      router.push(`/checkout/success?orderId=${orderId}`);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Checkout failed");
       setSubmitting(false);
@@ -232,12 +234,12 @@ export default function CheckoutPage() {
           </div>
 
           <Button type="submit" size="lg" className="w-full" disabled={submitting || loading}>
-            <Lock className="mr-2 h-4 w-4" />
-            {submitting ? "Processing..." : "Continue to Secure Payment"}
+            <ShieldCheck className="mr-2 h-4 w-4" />
+            {submitting ? "Placing order..." : "Place Order"}
           </Button>
           <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Payment is processed securely through iyzico
+            No online payment required — we&apos;ll contact you to confirm your order and arrange payment.
           </p>
         </form>
 
@@ -283,7 +285,7 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Shipping and tax, if any, are finalized on the payment page.
+                  Shipping and any final costs are confirmed by the shop when they contact you.
                 </p>
               </>
             )}

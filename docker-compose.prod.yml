@@ -55,6 +55,11 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile.prod
+      args:
+        # Public API origin the browser calls (your domain, proxied by nginx).
+        NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost}
+        # Ordering (cart/checkout) is off by default — catalog + WhatsApp only.
+        NEXT_PUBLIC_ENABLE_ORDERING: ${ENABLE_ORDERING:-false}
     container_name: storefront-web-prod
     restart: always
     environment:
