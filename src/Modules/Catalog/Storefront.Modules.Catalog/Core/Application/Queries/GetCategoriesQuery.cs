@@ -6,6 +6,7 @@ namespace Storefront.Modules.Catalog.Core.Application.Queries;
 
 public sealed record GetCategoriesQuery(
     string? ParentId = null,
-    bool? IsActive = true
+    bool? IsActive = true,
+    bool IncludeAll = false
 ) : IRequest<Result<IReadOnlyList<CategoryDto>>>;
 

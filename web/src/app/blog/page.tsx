@@ -33,14 +33,14 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Blog</h1>
         <p className="text-muted-foreground">
-          Tips, guides, and news from the hardware world
+          Hırdavat dünyasından ipuçları, rehberler ve haberler
         </p>
       </div>
 
       {blogPosts.items.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-lg text-muted-foreground">
-            No blog posts found. Check back soon!
+            Henüz blog yazısı yok. Yakında tekrar bakın!
           </p>
         </div>
       ) : (
@@ -79,7 +79,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
                           <span>
-                            {new Date(post.publishedAt).toLocaleDateString()}
+                            {new Date(post.publishedAt).toLocaleDateString("tr-TR")}
                           </span>
                         </div>
                       )}
@@ -93,7 +93,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           {/* Simple Pagination Info */}
           {blogPosts.totalPages > 1 && (
             <div className="mt-8 text-center text-sm text-muted-foreground">
-              Page {blogPosts.pageNumber} of {blogPosts.totalPages}
+              Sayfa {blogPosts.pageNumber} / {blogPosts.totalPages}
             </div>
           )}
         </>

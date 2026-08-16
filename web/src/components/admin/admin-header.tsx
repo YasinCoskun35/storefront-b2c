@@ -11,7 +11,7 @@ export function AdminHeader() {
     <header className="flex h-16 items-center border-b bg-background px-6">
       <div className="flex flex-1 items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">Welcome back, {user?.firstName}</h2>
+          <h2 className="text-lg font-semibold">Tekrar hoş geldiniz, {user?.firstName}</h2>
           <p className="text-sm text-muted-foreground">{user?.email}</p>
         </div>
         <div className="flex items-center space-x-4">
@@ -26,7 +26,7 @@ export function AdminHeader() {
             className="flex items-center space-x-2"
           >
             <LogOut className="h-4 w-4" />
-            <span>Logout</span>
+            <span>Çıkış Yap</span>
           </Button>
         </div>
       </div>

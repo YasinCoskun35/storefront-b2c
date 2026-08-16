@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone, ShoppingBag } from "lucide-react";
+import Image from "next/image";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { catalogApi } from "@/lib/api";
+import { ENABLE_ORDERING } from "@/lib/config";
 
 export async function Footer() {
   let topCategories: { id: string; name: string }[] = [];
@@ -21,18 +23,18 @@ export async function Footer() {
           {/* Brand */}
           <div className="space-y-4 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 font-display">
-              <ShoppingBag className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold">Storefront</span>
+              <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={28} height={28} />
+              <span className="text-lg font-bold">Harun Yapı Market</span>
             </Link>
             <p className="max-w-xs text-sm text-secondary-foreground/70">
-              Your trusted hardware store for quality tools and equipment,
-              delivered to your door.
+              Kaliteli el aletleri, hırdavat ve yapı malzemeleri için
+              güvenilir adresiniz.
             </p>
             <ul className="space-y-2 text-sm text-secondary-foreground/70">
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-primary" />
-                <a href="mailto:info@storefront.com" className="hover:text-primary">
-                  info@storefront.com
+                <a href="mailto:info@harunyapimarket.com" className="hover:text-primary">
+                  info@harunyapimarket.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -41,7 +43,7 @@ export async function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                <span>Istanbul, Turkey</span>
+                <span>İstanbul, Türkiye</span>
               </li>
             </ul>
           </div>
@@ -49,12 +51,12 @@ export async function Footer() {
           {/* Products */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-secondary-foreground/50">
-              Products
+              Ürünler
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/products" className="text-secondary-foreground/70 hover:text-primary">
-                  All Products
+                  Tüm Ürünler
                 </Link>
               </li>
               {topCategories.map((category) => (
@@ -73,22 +75,17 @@ export async function Footer() {
           {/* Company */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-secondary-foreground/50">
-              Company
+              Kurumsal
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/about" className="text-secondary-foreground/70 hover:text-primary">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="text-secondary-foreground/70 hover:text-primary">
-                  Blog
+                  Hakkımızda
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-secondary-foreground/70 hover:text-primary">
-                  Contact
+                  İletişim
                 </Link>
               </li>
             </ul>
@@ -97,26 +94,28 @@ export async function Footer() {
           {/* Support */}
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-secondary-foreground/50">
-              Support
+              Destek
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/contact" className="text-secondary-foreground/70 hover:text-primary">
-                  Help Center
+                  Yardım Merkezi
                 </Link>
               </li>
-              <li>
-                <Link href="/cart" className="text-secondary-foreground/70 hover:text-primary">
-                  Your Cart
-                </Link>
-              </li>
+              {ENABLE_ORDERING && (
+                <li>
+                  <Link href="/cart" className="text-secondary-foreground/70 hover:text-primary">
+                    Sepetiniz
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-secondary-foreground/10 pt-8 text-sm text-secondary-foreground/50 sm:flex-row">
-          <p>&copy; {new Date().getFullYear()} Storefront. All rights reserved.</p>
-          <p>Secure checkout powered by iyzico</p>
+          <p>&copy; {new Date().getFullYear()} Harun Yapı Market. Tüm hakları saklıdır.</p>
+          <p>Güvenli ödeme altyapısı: iyzico</p>
         </div>
       </div>
     </footer>

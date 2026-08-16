@@ -24,9 +24,9 @@ export default function CartPage() {
       await b2cCartApi.removeItem(itemId);
       await reload();
       notifyCartUpdated();
-      toast.success("Item removed");
+      toast.success("Ürün kaldırıldı");
     } catch {
-      toast.error("Failed to remove item");
+      toast.error("Ürün kaldırılamadı");
     }
   };
 
@@ -37,14 +37,14 @@ export default function CartPage() {
       await reload();
       notifyCartUpdated();
     } catch {
-      toast.error("Failed to update quantity");
+      toast.error("Adet güncellenemedi");
     }
   };
 
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <p className="text-muted-foreground">Loading cart...</p>
+        <p className="text-muted-foreground">Sepet yükleniyor...</p>
       </div>
     );
   }
@@ -56,13 +56,13 @@ export default function CartPage() {
           <ShoppingCart className="h-9 w-9 text-muted-foreground" strokeWidth={1.5} />
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold">Your cart is empty</h1>
+          <h1 className="font-display text-2xl font-bold">Sepetiniz boş</h1>
           <p className="mt-2 text-muted-foreground">
-            Browse our products and add items to your cart.
+            Ürünlerimize göz atın ve sepetinize ekleyin.
           </p>
         </div>
         <Link href="/products">
-          <Button size="lg">Browse Products</Button>
+          <Button size="lg">Ürünleri İncele</Button>
         </Link>
       </div>
     );
@@ -71,7 +71,7 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="mb-8 font-display text-3xl font-bold">
-        Shopping Cart <span className="text-muted-foreground">({cart.itemCount})</span>
+        Sepetim <span className="text-muted-foreground">({cart.itemCount})</span>
       </h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -103,12 +103,12 @@ export default function CartPage() {
 
                   {item.colorOptionName && (
                     <p className="text-sm text-muted-foreground">
-                      Color: {item.colorOptionName}
+                      Renk: {item.colorOptionName}
                       {item.colorOptionCode && ` (${item.colorOptionCode})`}
                     </p>
                   )}
                   {item.customizationNotes && (
-                    <p className="text-sm text-muted-foreground">Note: {item.customizationNotes}</p>
+                    <p className="text-sm text-muted-foreground">Not: {item.customizationNotes}</p>
                   )}
 
                   <div className="mt-2 flex items-center gap-2">
@@ -141,7 +141,7 @@ export default function CartPage() {
                       onClick={() => handleRemove(item.id)}
                     >
                       <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Remove</span>
+                      <span className="sr-only">Kaldır</span>
                     </Button>
                   </div>
                 </div>
@@ -153,25 +153,25 @@ export default function CartPage() {
         {/* Summary */}
         <div className="lg:col-span-1">
           <div className="sticky top-20 space-y-4 rounded-xl border bg-card p-6">
-            <h2 className="font-display text-xl font-semibold">Order Summary</h2>
+            <h2 className="font-display text-xl font-semibold">Sipariş Özeti</h2>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Items</span>
+              <span className="text-muted-foreground">Ürünler</span>
               <span>{cart.itemCount}</span>
             </div>
             <div className="flex justify-between border-t pt-4 text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">Ara Toplam</span>
               {hasAllPrices ? (
                 <span className="font-semibold">{formatPrice(subtotal)}</span>
               ) : (
-                <span className="text-muted-foreground">Calculated at checkout</span>
+                <span className="text-muted-foreground">Ödeme adımında hesaplanır</span>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Shipping and any applicable tax are calculated during checkout.
+              Kargo ve varsa vergiler ödeme adımında hesaplanır.
             </p>
             <div className="pt-2">
               <Button className="w-full" size="lg" onClick={() => router.push("/checkout")}>
-                Proceed to Checkout
+                Ödemeye Geç
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
@@ -179,7 +179,7 @@ export default function CartPage() {
               href="/products"
               className="block text-center text-sm text-muted-foreground hover:text-primary hover:underline"
             >
-              Continue Shopping
+              Alışverişe Devam Et
             </Link>
           </div>
         </div>

@@ -45,14 +45,14 @@ export default function AdminOrderDetailsPage({
     mutationFn: ({ status, notes }: { status: number; notes?: string }) =>
       adminOrdersApi.updateOrderStatus(id, status, notes),
     onSuccess: () => {
-      toast.success("Order status updated successfully");
+      toast.success("Sipariş durumu güncellendi");
       queryClient.invalidateQueries({ queryKey: ["admin-order", id] });
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       setShowStatusDialog(false);
       setStatusNotes("");
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to update status");
+      toast.error(error.response?.data?.message || "Durum güncellenemedi");
     },
   });
 
@@ -60,11 +60,11 @@ export default function AdminOrderDetailsPage({
     mutationFn: ({ content, type, isInternal }: { content: string; type: CommentType; isInternal: boolean }) =>
       adminOrdersApi.addComment(id, content, type, isInternal),
     onSuccess: () => {
-      toast.success("Comment added successfully");
+      toast.success("Yorum eklendi");
       queryClient.invalidateQueries({ queryKey: ["admin-order", id] });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to add comment");
+      toast.error(error.response?.data?.message || "Yorum eklenemedi");
     },
   });
 
@@ -82,10 +82,10 @@ export default function AdminOrderDetailsPage({
         <Card className="p-12 text-center">
           <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-medium text-gray-900 mb-2">
-            Order not found
+            Sipariş bulunamadı
           </h2>
           <Button onClick={() => router.push("/admin/orders")}>
-            Back to Orders
+            Siparişlere Dön
           </Button>
         </Card>
       </div>
@@ -107,7 +107,7 @@ export default function AdminOrderDetailsPage({
         className="mb-6"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Orders
+        Siparişlere Dön
       </Button>
 
       {/* Header */}
@@ -117,7 +117,7 @@ export default function AdminOrderDetailsPage({
           <div className="flex items-center gap-3">
             <OrderStatusBadge status={order.status} />
             <span className="text-sm text-gray-600">
-              Created {new Date(order.createdAt).toLocaleDateString()}
+              {new Date(order.createdAt).toLocaleDateString("tr-TR")} tarihinde oluşturuldu
             </span>
             {(order.guestName || order.guestEmail) && (
               <>
@@ -133,7 +133,7 @@ export default function AdminOrderDetailsPage({
         <div className="flex gap-2">
           <Button onClick={() => setShowStatusDialog(true)}>
             <Edit className="w-4 h-4 mr-2" />
-            Update Status
+            Durumu Güncelle
           </Button>
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function AdminOrderDetailsPage({
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Package className="w-5 h-5" />
-              Order Items ({order.items.length})
+              Sipariş Ürünleri ({order.items.length})
             </h2>
             <div className="space-y-3">
               {order.items.map((item) => (
@@ -163,14 +163,14 @@ export default function AdminOrderDetailsPage({
                   <CartItemCard item={item} readOnly />
                   {(item.unitPrice || item.totalPrice) && (
                     <div className="mt-3 pt-3 border-t flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Price:</span>
+                      <span className="text-gray-600">Fiyat:</span>
                       <div className="text-right">
                         {item.unitPrice && (
-                          <div>Unit: {order.currency} {item.unitPrice.toFixed(2)}</div>
+                          <div>Birim: {order.currency} {item.unitPrice.toFixed(2)}</div>
                         )}
                         {item.totalPrice && (
                           <div className="font-medium">
-                            Total: {order.currency} {item.totalPrice.toFixed(2)}
+                            Toplam: {order.currency} {item.totalPrice.toFixed(2)}
                           </div>
                         )}
                       </div>
@@ -204,14 +204,14 @@ export default function AdminOrderDetailsPage({
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <User className="w-5 h-5" />
-              Customer
+              Müşteri
             </h2>
             <div className="text-sm space-y-1">
               {order.guestName && <p className="font-medium">{order.guestName}</p>}
               {order.guestEmail && <p className="text-gray-600">{order.guestEmail}</p>}
               {order.guestPhone && <p className="text-gray-600">{order.guestPhone}</p>}
               {!order.guestName && !order.guestEmail && !order.guestPhone && (
-                <p className="text-gray-500">No customer information available</p>
+                <p className="text-gray-500">Müşteri bilgisi yok</p>
               )}
             </div>
           </Card>
@@ -220,7 +220,7 @@ export default function AdminOrderDetailsPage({
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <MapPin className="w-5 h-5" />
-              Delivery Address
+              Teslimat Adresi
             </h2>
             <div className="text-sm space-y-1">
               <p>{order.deliveryAddress}</p>
@@ -232,7 +232,7 @@ export default function AdminOrderDetailsPage({
             </div>
             {order.deliveryNotes && (
               <div className="mt-4 p-3 bg-gray-50 rounded text-sm">
-                <span className="font-medium">Delivery Notes:</span>
+                <span className="font-medium">Teslimat Notları:</span>
                 <p className="text-gray-700 mt-1">{order.deliveryNotes}</p>
               </div>
             )}
@@ -242,30 +242,30 @@ export default function AdminOrderDetailsPage({
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5" />
-              Important Dates
+              Önemli Tarihler
             </h2>
             <div className="space-y-3 text-sm">
               {order.requestedDeliveryDate && (
                 <div>
-                  <span className="text-gray-600">Requested Delivery:</span>
+                  <span className="text-gray-600">İstenen Teslimat:</span>
                   <p className="font-medium">
-                    {new Date(order.requestedDeliveryDate).toLocaleDateString()}
+                    {new Date(order.requestedDeliveryDate).toLocaleDateString("tr-TR")}
                   </p>
                 </div>
               )}
               {order.expectedDeliveryDate && (
                 <div>
-                  <span className="text-gray-600">Expected Delivery:</span>
+                  <span className="text-gray-600">Tahmini Teslimat:</span>
                   <p className="font-medium">
-                    {new Date(order.expectedDeliveryDate).toLocaleDateString()}
+                    {new Date(order.expectedDeliveryDate).toLocaleDateString("tr-TR")}
                   </p>
                 </div>
               )}
               {order.submittedAt && (
                 <div>
-                  <span className="text-gray-600">Order Submitted:</span>
+                  <span className="text-gray-600">Sipariş Verildi:</span>
                   <p className="font-medium">
-                    {new Date(order.submittedAt).toLocaleDateString()}
+                    {new Date(order.submittedAt).toLocaleDateString("tr-TR")}
                   </p>
                 </div>
               )}
@@ -276,19 +276,19 @@ export default function AdminOrderDetailsPage({
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Truck className="w-5 h-5" />
-              Shipping
+              Kargo
             </h2>
             {order.trackingNumber || order.shippingProvider ? (
               <div className="space-y-3 text-sm">
                 {order.shippingProvider && (
                   <div>
-                    <span className="text-gray-600">Provider:</span>
+                    <span className="text-gray-600">Firma:</span>
                     <p className="font-medium">{order.shippingProvider}</p>
                   </div>
                 )}
                 {order.trackingNumber && (
                   <div>
-                    <span className="text-gray-600">Tracking Number:</span>
+                    <span className="text-gray-600">Takip Numarası:</span>
                     <p className="font-medium font-mono">
                       {order.trackingNumber}
                     </p>
@@ -297,7 +297,7 @@ export default function AdminOrderDetailsPage({
               </div>
             ) : (
               <p className="text-sm text-gray-500">
-                Shipping information will be added when order is shipped
+                Kargo bilgileri sipariş gönderildiğinde eklenecek
               </p>
             )}
           </Card>
@@ -305,34 +305,34 @@ export default function AdminOrderDetailsPage({
           {/* Pricing */}
           {order.totalAmount != null && (
             <Card className="p-6 bg-purple-50">
-              <h2 className="text-lg font-semibold mb-4">Order Total</h2>
+              <h2 className="text-lg font-semibold mb-4">Sipariş Tutarı</h2>
               <div className="space-y-2 text-sm">
                 {order.subTotal && (
                   <div className="flex justify-between">
-                    <span>Subtotal:</span>
+                    <span>Ara Toplam:</span>
                     <span>{order.currency} {order.subTotal.toFixed(2)}</span>
                   </div>
                 )}
                 {order.taxAmount && (
                   <div className="flex justify-between">
-                    <span>Tax:</span>
+                    <span>Vergi:</span>
                     <span>{order.currency} {order.taxAmount.toFixed(2)}</span>
                   </div>
                 )}
                 {order.shippingCost && (
                   <div className="flex justify-between">
-                    <span>Shipping:</span>
+                    <span>Kargo:</span>
                     <span>{order.currency} {order.shippingCost.toFixed(2)}</span>
                   </div>
                 )}
                 {order.discount && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount:</span>
+                    <span>İndirim:</span>
                     <span>-{order.currency} {order.discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                  <span>Total:</span>
+                  <span>Toplam:</span>
                   <span>{order.currency} {order.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function AdminOrderDetailsPage({
           {/* Notes */}
           {order.notes && (
             <Card className="p-6">
-              <h2 className="text-lg font-semibold mb-3">Notes</h2>
+              <h2 className="text-lg font-semibold mb-3">Notlar</h2>
               <p className="text-sm text-gray-700 whitespace-pre-wrap">
                 {order.notes}
               </p>
@@ -355,15 +355,15 @@ export default function AdminOrderDetailsPage({
       <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update Order Status</DialogTitle>
+            <DialogTitle>Sipariş Durumunu Güncelle</DialogTitle>
             <DialogDescription>
-              Change the status of order {order.orderNumber}
+              {order.orderNumber} numaralı siparişin durumunu değiştirin
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="newStatus">New Status</Label>
+              <Label htmlFor="newStatus">Yeni Durum</Label>
               <select
                 id="newStatus"
                 value={newStatus}
@@ -381,12 +381,12 @@ export default function AdminOrderDetailsPage({
             </div>
 
             <div>
-              <Label htmlFor="statusNotes">Notes (optional)</Label>
+              <Label htmlFor="statusNotes">Notlar (isteğe bağlı)</Label>
               <Textarea
                 id="statusNotes"
                 value={statusNotes}
                 onChange={(e) => setStatusNotes(e.target.value)}
-                placeholder="Add any notes about this status change..."
+                placeholder="Bu durum değişikliğiyle ilgili notlar ekleyin..."
                 rows={3}
               />
             </div>
@@ -397,13 +397,13 @@ export default function AdminOrderDetailsPage({
               variant="outline"
               onClick={() => setShowStatusDialog(false)}
             >
-              Cancel
+              İptal
             </Button>
             <Button
               onClick={handleUpdateStatus}
               disabled={updateStatusMutation.isPending}
             >
-              {updateStatusMutation.isPending ? "Updating..." : "Update Status"}
+              {updateStatusMutation.isPending ? "Güncelleniyor..." : "Durumu Güncelle"}
             </Button>
           </DialogFooter>
         </DialogContent>

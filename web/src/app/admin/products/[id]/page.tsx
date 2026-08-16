@@ -37,8 +37,8 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             </button>
           </Link>
           <div>
-            <h1 className="font-display text-3xl font-bold text-secondary">Product Not Found</h1>
-            <p className="text-muted-foreground">The product you're looking for doesn't exist.</p>
+            <h1 className="font-display text-3xl font-bold text-secondary">Ürün Bulunamadı</h1>
+            <p className="text-muted-foreground">Aradığınız ürün mevcut değil.</p>
           </div>
         </div>
       </div>
@@ -55,8 +55,8 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           </button>
         </Link>
         <div>
-          <h1 className="font-display text-3xl font-bold text-secondary">Edit Product</h1>
-          <p className="text-muted-foreground">Update product information</p>
+          <h1 className="font-display text-3xl font-bold text-secondary">Ürünü Düzenle</h1>
+          <p className="text-muted-foreground">Ürün bilgilerini güncelleyin</p>
         </div>
       </div>
 

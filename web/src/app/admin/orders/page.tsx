@@ -36,9 +36,9 @@ export default function AdminOrdersPage() {
       <div className="flex items-center gap-3 mb-6">
         <Package className="w-8 h-8 text-purple-600" />
         <div>
-          <h1 className="text-3xl font-bold">Order Management</h1>
+          <h1 className="text-3xl font-bold">Sipariş Yönetimi</h1>
           <p className="text-gray-600 mt-1">
-            Review and manage all customer orders
+            Tüm müşteri siparişlerini inceleyin ve yönetin
           </p>
         </div>
       </div>
@@ -46,23 +46,23 @@ export default function AdminOrdersPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <Card className="p-4">
-          <div className="text-sm text-gray-600">Total Orders</div>
+          <div className="text-sm text-gray-600">Toplam Sipariş</div>
           <div className="text-2xl font-bold">{ordersResponse?.totalCount || 0}</div>
         </Card>
         <Card className="p-4 bg-yellow-50">
-          <div className="text-sm text-gray-600">Pending</div>
+          <div className="text-sm text-gray-600">Beklemede</div>
           <div className="text-2xl font-bold">
             {orders.filter((o) => o.status === "Pending").length}
           </div>
         </Card>
         <Card className="p-4 bg-blue-50">
-          <div className="text-sm text-gray-600">Quote Sent</div>
+          <div className="text-sm text-gray-600">Teklif Gönderildi</div>
           <div className="text-2xl font-bold">
             {orders.filter((o) => o.status === "QuoteSent").length}
           </div>
         </Card>
         <Card className="p-4 bg-green-50">
-          <div className="text-sm text-gray-600">Confirmed</div>
+          <div className="text-sm text-gray-600">Onaylandı</div>
           <div className="text-2xl font-bold">
             {orders.filter((o) => o.status === "Confirmed").length}
           </div>
@@ -75,7 +75,7 @@ export default function AdminOrdersPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
             type="search"
-            placeholder="Search by order number..."
+            placeholder="Sipariş numarasına göre ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -87,16 +87,16 @@ export default function AdminOrdersPage() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-4 py-2 border rounded-md bg-white"
         >
-          <option value="">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="QuoteSent">Quote Sent</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Preparing">Preparing</option>
-          <option value="QualityCheck">Quality Check</option>
-          <option value="ReadyToShip">Ready to Ship</option>
-          <option value="Shipping">Shipping</option>
-          <option value="Delivered">Delivered</option>
-          <option value="Cancelled">Cancelled</option>
+          <option value="">Tüm Durumlar</option>
+          <option value="Pending">Beklemede</option>
+          <option value="QuoteSent">Teklif Gönderildi</option>
+          <option value="Confirmed">Onaylandı</option>
+          <option value="Preparing">Hazırlanıyor</option>
+          <option value="QualityCheck">Kalite Kontrol</option>
+          <option value="ReadyToShip">Gönderime Hazır</option>
+          <option value="Shipping">Kargoda</option>
+          <option value="Delivered">Teslim Edildi</option>
+          <option value="Cancelled">İptal Edildi</option>
         </select>
       </div>
 
@@ -109,12 +109,12 @@ export default function AdminOrdersPage() {
         <Card className="p-12 text-center">
           <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-medium text-gray-900 mb-2">
-            {searchTerm || statusFilter ? "No orders found" : "No orders yet"}
+            {searchTerm || statusFilter ? "Sipariş bulunamadı" : "Henüz sipariş yok"}
           </h2>
           <p className="text-gray-600">
             {searchTerm || statusFilter
-              ? "Try adjusting your search or filters"
-              : "Orders will appear here once customers place them"}
+              ? "Aramanızı veya filtreleri değiştirmeyi deneyin"
+              : "Müşteriler sipariş verdikçe burada görünecek"}
           </p>
         </Card>
       ) : (
@@ -131,7 +131,7 @@ export default function AdminOrdersPage() {
                       <OrderStatusBadge status={order.status} />
                       {order.hasUnreadComments && (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          New
+                          Yeni
                         </span>
                       )}
                     </div>
@@ -139,14 +139,14 @@ export default function AdminOrdersPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm text-gray-600">
                       <div>
                         <span className="block text-xs text-gray-500">
-                          Created
+                          Oluşturulma
                         </span>
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {new Date(order.createdAt).toLocaleDateString("tr-TR")}
                       </div>
 
                       <div>
                         <span className="block text-xs text-gray-500">
-                          Items
+                          Ürün Adedi
                         </span>
                         {order.itemCount}
                       </div>
@@ -154,7 +154,7 @@ export default function AdminOrdersPage() {
                       {order.totalAmount && (
                         <div>
                           <span className="block text-xs text-gray-500">
-                            Total
+                            Toplam
                           </span>
                           {order.currency} {order.totalAmount.toFixed(2)}
                         </div>
@@ -163,11 +163,11 @@ export default function AdminOrdersPage() {
                       {order.requestedDeliveryDate && (
                         <div>
                           <span className="block text-xs text-gray-500">
-                            Requested Delivery
+                            İstenen Teslim Tarihi
                           </span>
                           {new Date(
                             order.requestedDeliveryDate
-                          ).toLocaleDateString()}
+                          ).toLocaleDateString("tr-TR")}
                         </div>
                       )}
                     </div>
@@ -185,13 +185,13 @@ export default function AdminOrdersPage() {
       {ordersResponse && ordersResponse.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-center gap-2">
           <Button variant="outline" disabled>
-            Previous
+            Önceki
           </Button>
           <span className="text-sm text-gray-600">
-            Page {ordersResponse.pageNumber} of {ordersResponse.totalPages}
+            Sayfa {ordersResponse.pageNumber} / {ordersResponse.totalPages}
           </span>
           <Button variant="outline" disabled>
-            Next
+            Sonraki
           </Button>
         </div>
       )}

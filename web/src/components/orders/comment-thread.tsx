@@ -46,7 +46,7 @@ export function CommentThread({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Comments & Updates</h3>
+      <h3 className="text-lg font-medium">Yorumlar ve Güncellemeler</h3>
 
       {/* Comments List */}
       <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -69,7 +69,7 @@ export function CommentThread({
                 {comment.isInternal && (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 flex items-center gap-1">
                     <Lock className="w-3 h-3" />
-                    Internal
+                    Dahili
                   </span>
                 )}
               </div>
@@ -91,20 +91,20 @@ export function CommentThread({
                   rel="noopener noreferrer"
                   className="hover:underline"
                 >
-                  {comment.attachmentFileName || "View attachment"}
+                  {comment.attachmentFileName || "Eki görüntüle"}
                 </a>
               </div>
             )}
 
             <div className="mt-2 text-xs text-gray-500">
-              Type: {COMMENT_TYPE_LABELS[comment.type as unknown as CommentType] || comment.type}
+              Tür: {COMMENT_TYPE_LABELS[comment.type as unknown as CommentType] || comment.type}
             </div>
           </Card>
         ))}
 
         {visibleComments.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            No comments yet. Be the first to add one!
+            Henüz yorum yok. İlk yorumu siz ekleyin!
           </div>
         )}
       </div>
@@ -114,7 +114,7 @@ export function CommentThread({
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add a comment..."
+          placeholder="Yorum ekleyin..."
           rows={3}
           disabled={isSubmitting}
         />
@@ -126,10 +126,10 @@ export function CommentThread({
             className="px-3 py-2 border rounded-md text-sm"
             disabled={isSubmitting}
           >
-            <option value={CommentType.General}>General</option>
-            <option value={CommentType.Quote}>Quote</option>
-            <option value={CommentType.Payment}>Payment</option>
-            <option value={CommentType.Shipping}>Shipping</option>
+            <option value={CommentType.General}>Genel</option>
+            <option value={CommentType.Quote}>Teklif</option>
+            <option value={CommentType.Payment}>Ödeme</option>
+            <option value={CommentType.Shipping}>Kargo</option>
           </select>
 
           {isAdmin && (
@@ -141,7 +141,7 @@ export function CommentThread({
                 disabled={isSubmitting}
                 className="rounded"
               />
-              Internal note (admins only)
+              Dahili not (sadece yöneticiler)
             </label>
           )}
 
@@ -151,7 +151,7 @@ export function CommentThread({
             className="ml-auto"
           >
             <Send className="w-4 h-4 mr-2" />
-            {isSubmitting ? "Sending..." : "Send"}
+            {isSubmitting ? "Gönderiliyor..." : "Gönder"}
           </Button>
         </div>
       </form>

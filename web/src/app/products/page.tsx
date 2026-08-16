@@ -41,11 +41,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="font-display text-4xl font-bold">
-          {activeCategory ? activeCategory.name : "Products"}
+          {activeCategory ? activeCategory.name : "Ürünler"}
         </h1>
         {params.q ? (
           <p className="mt-2 text-muted-foreground">
-            Showing results for &ldquo;{params.q}&rdquo;
+            &ldquo;{params.q}&rdquo; için sonuçlar
           </p>
         ) : activeCategory?.description ? (
           <p className="mt-2 max-w-2xl text-muted-foreground">{activeCategory.description}</p>
@@ -69,13 +69,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           {productsResult.items.length === 0 ? (
             <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-20 text-center">
               <PackageSearch className="h-10 w-10 text-muted-foreground" strokeWidth={1.5} />
-              <p className="text-lg font-medium">No products found</p>
+              <p className="text-lg font-medium">Ürün bulunamadı</p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                Try adjusting your search or filters, or browse all products.
+                Aramanızı veya filtreleri değiştirin ya da tüm ürünlere göz atın.
               </p>
               <Link href="/products">
                 <Button variant="outline" className="mt-2">
-                  Clear filters
+                  Filtreleri temizle
                 </Button>
               </Link>
             </div>
@@ -83,9 +83,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <>
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Showing {(pageNumber - 1) * pageSize + 1}-
-                  {Math.min(pageNumber * pageSize, productsResult.totalCount)} of{" "}
-                  {productsResult.totalCount} products
+                  {productsResult.totalCount} üründen {(pageNumber - 1) * pageSize + 1}-
+                  {Math.min(pageNumber * pageSize, productsResult.totalCount)} arası gösteriliyor
                 </p>
               </div>
 
@@ -125,7 +124,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   )}
 
                   <span className="px-2 text-sm font-medium">
-                    Page {pageNumber} of {productsResult.totalPages}
+                    Sayfa {pageNumber} / {productsResult.totalPages}
                   </span>
 
                   {productsResult.hasNextPage ? (

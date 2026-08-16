@@ -46,7 +46,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
               {src && (
                 <Image
                   src={src}
-                  alt={slide.headline || `Slide ${i + 1}`}
+                  alt={slide.headline || `Görsel ${i + 1}`}
                   fill
                   priority={i === 0}
                   sizes="100vw"
@@ -86,7 +86,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
           <button
             type="button"
             onClick={prev}
-            aria-label="Previous slide"
+            aria-label="Önceki görsel"
             className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-colors hover:bg-black/60"
           >
             <ChevronLeft className="h-5 w-5" />
@@ -94,7 +94,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
           <button
             type="button"
             onClick={next}
-            aria-label="Next slide"
+            aria-label="Sonraki görsel"
             className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-colors hover:bg-black/60"
           >
             <ChevronRight className="h-5 w-5" />
@@ -106,7 +106,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
                 key={i}
                 type="button"
                 onClick={() => goTo(i)}
-                aria-label={`Go to slide ${i + 1}`}
+                aria-label={`${i + 1}. görsele git`}
                 className={`h-2 rounded-full transition-all ${
                   i === index ? "w-6 bg-white" : "w-2 bg-white/50 hover:bg-white/80"
                 }`}

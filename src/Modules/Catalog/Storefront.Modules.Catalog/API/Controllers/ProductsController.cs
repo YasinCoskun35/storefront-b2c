@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Storefront.Modules.Catalog.Core.Application.Commands;
@@ -68,6 +69,7 @@ public sealed class ProductsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(
         [FromBody] CreateProductCommand command,
         CancellationToken cancellationToken)
@@ -88,7 +90,51 @@ public sealed class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Value }, new { id = result.Value });
     }
 
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Update(
+        string id,
+        [FromBody] UpdateProductCommand command,
+        CancellationToken cancellationToken)
+    {
+        // The route id is authoritative over the body.
+        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "Conflict" => Conflict(new { error = result.Error.Code, message = result.Error.Message }),
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                "Validation" => BadRequest(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return Ok(new { id = result.Value });
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteProductCommand(id), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "Conflict" => Conflict(new { error = result.Error.Code, message = result.Error.Message }),
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return NoContent();
+    }
+
     [HttpPost("{id}/images")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UploadImage(
         string id,
         IFormFile file,
@@ -138,6 +184,7 @@ public sealed class ProductsController : ControllerBase
     }
     
     [HttpPost("{id}/components")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddComponentToBundle(
         string id,
         [FromBody] AddComponentRequest request,
@@ -168,6 +215,7 @@ public sealed class ProductsController : ControllerBase
     }
     
     [HttpDelete("{bundleId}/components/{componentId}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RemoveComponentFromBundle(
         string bundleId,
         string componentId,

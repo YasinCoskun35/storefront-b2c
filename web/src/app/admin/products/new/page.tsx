@@ -15,8 +15,8 @@ export default function NewProductPage() {
           </button>
         </Link>
         <div>
-          <h1 className="font-display text-3xl font-bold text-secondary">Add New Product</h1>
-          <p className="text-muted-foreground">Create a new product in your catalog</p>
+          <h1 className="font-display text-3xl font-bold text-secondary">Yeni Ürün Ekle</h1>
+          <p className="text-muted-foreground">Kataloğunuza yeni bir ürün ekleyin</p>
         </div>
       </div>
 

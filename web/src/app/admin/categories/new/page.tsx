@@ -15,8 +15,8 @@ export default function NewCategoryPage() {
           </button>
         </Link>
         <div>
-          <h1 className="font-display text-3xl font-bold text-secondary">Add New Category</h1>
-          <p className="text-muted-foreground">Create a new product category</p>
+          <h1 className="font-display text-3xl font-bold text-secondary">Yeni Kategori Ekle</h1>
+          <p className="text-muted-foreground">Yeni bir ürün kategorisi oluşturun</p>
         </div>
       </div>
 

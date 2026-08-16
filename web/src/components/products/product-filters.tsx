@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ENABLE_ORDERING } from "@/lib/config";
 
 interface ProductFiltersProps {
   categories?: Array<{ id: string; name: string }>;
@@ -20,8 +21,10 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const selectedCategory = searchParams.get("categoryId") || "";
 
+  // Price range is only meaningful when ordering/pricing is enabled.
   const hasActiveFilters = Boolean(
-    searchParams.get("categoryId") || searchParams.get("minPrice") || searchParams.get("maxPrice")
+    searchParams.get("categoryId") ||
+      (ENABLE_ORDERING && (searchParams.get("minPrice") || searchParams.get("maxPrice")))
   );
 
   const selectCategory = (categoryId: string) => {
@@ -59,7 +62,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-display text-base font-semibold">
           <SlidersHorizontal className="h-4 w-4 text-primary" />
-          Filters
+          Filtreler
         </h3>
         {hasActiveFilters && (
           <button
@@ -67,13 +70,13 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary"
           >
             <X className="h-3 w-3" />
-            Clear
+            Temizle
           </button>
         )}
       </div>
 
       <div>
-        <h4 className="mb-3 text-sm font-medium text-foreground">Categories</h4>
+        <h4 className="mb-3 text-sm font-medium text-foreground">Kategoriler</h4>
         <div className="space-y-1">
           <button
             onClick={() => selectCategory("")}
@@ -84,7 +87,7 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 : "text-foreground/80 hover:bg-muted"
             )}
           >
-            All Categories
+            Tüm Kategoriler
           </button>
           {categories?.map((category) => (
             <button
@@ -103,40 +106,42 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
         </div>
       </div>
 
-      <div className="border-t pt-5">
-        <h4 className="mb-3 text-sm font-medium text-foreground">Price Range</h4>
-        <div className="flex items-center gap-2">
-          <div className="flex-1 space-y-1">
-            <Label htmlFor="minPrice" className="text-xs text-muted-foreground">
-              Min
-            </Label>
-            <Input
-              id="minPrice"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-            />
+      {ENABLE_ORDERING && (
+        <div className="border-t pt-5">
+          <h4 className="mb-3 text-sm font-medium text-foreground">Fiyat Aralığı</h4>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="minPrice" className="text-xs text-muted-foreground">
+                En Az
+              </Label>
+              <Input
+                id="minPrice"
+                type="number"
+                min={0}
+                placeholder="0"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+              />
+            </div>
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">
+                En Çok
+              </Label>
+              <Input
+                id="maxPrice"
+                type="number"
+                min={0}
+                placeholder="Farketmez"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+              />
+            </div>
           </div>
-          <div className="flex-1 space-y-1">
-            <Label htmlFor="maxPrice" className="text-xs text-muted-foreground">
-              Max
-            </Label>
-            <Input
-              id="maxPrice"
-              type="number"
-              min={0}
-              placeholder="Any"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-            />
-          </div>
+          <Button onClick={applyPriceRange} className="mt-3 w-full" size="sm">
+            Uygula
+          </Button>
         </div>
-        <Button onClick={applyPriceRange} className="mt-3 w-full" size="sm">
-          Apply
-        </Button>
-      </div>
+      )}
     </div>
   );
 }

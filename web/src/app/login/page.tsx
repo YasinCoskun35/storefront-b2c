@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingBag } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -22,7 +22,7 @@ export default function LoginPage() {
     try {
       await login(email, password);
     } catch (err: any) {
-      setError(err.message || "Login failed. Please check your credentials.");
+      setError(err.message || "Giriş başarısız. Bilgilerinizi kontrol edin.");
     } finally {
       setIsLoading(false);
     }
@@ -33,23 +33,23 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
-            <ShoppingBag className="h-12 w-12 text-primary" />
+            <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={56} height={56} />
           </div>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardTitle className="text-2xl">Yönetici Girişi</CardTitle>
           <CardDescription>
-            Enter your credentials to access the admin dashboard
+            Yönetim paneline erişmek için bilgilerinizi girin
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
-                Email
+                E-posta
               </label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@storefront.com"
+                placeholder="admin@harunyapimarket.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -58,7 +58,7 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">
-                Password
+                Şifre
               </label>
               <Input
                 id="password"
@@ -75,7 +75,7 @@ export default function LoginPage() {
               </div>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
             </Button>
           </form>
         </CardContent>

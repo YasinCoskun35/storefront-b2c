@@ -1,9 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { catalogApi, contentApi } from "@/lib/api";
+import { catalogApi } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, AlertTriangle, FileText, TrendingUp } from "lucide-react";
+import { Package, AlertTriangle, FolderTree } from "lucide-react";
 
 export default function AdminDashboardPage() {
   // Fetch stats
@@ -12,47 +12,48 @@ export default function AdminDashboardPage() {
     queryFn: () => catalogApi.searchProducts({ pageSize: 1 }),
   });
 
-  const { data: blogData } = useQuery({
-    queryKey: ["admin-blog-stats"],
-    queryFn: () => contentApi.getBlogPosts({ pageSize: 1 }),
+  const { data: categoriesData } = useQuery({
+    queryKey: ["admin-categories-stats"],
+    queryFn: () => catalogApi.getAllCategories({ includeInactive: true }),
   });
 
-  // Calculate low stock items (mock for now)
-  const lowStockCount = 5; // Would need a separate endpoint
+  // Count products that need restocking (low stock / out of stock).
+  const { data: lowStockData } = useQuery({
+    queryKey: ["admin-lowstock-stats"],
+    queryFn: () => catalogApi.searchProducts({ pageSize: 500 }),
+  });
+  const lowStockCount =
+    lowStockData?.items.filter(
+      (p) => p.stockStatus === "LowStock" || p.stockStatus === "OutOfStock"
+    ).length ?? 0;
 
   const stats = [
     {
-      title: "Total Products",
+      title: "Toplam Ürün",
       value: productsData?.totalCount || 0,
       icon: Package,
-      description: "Products in catalog",
+      description: "Katalogdaki ürünler",
     },
     {
-      title: "Low Stock Items",
+      title: "Stoğu Azalan / Tükenen",
       value: lowStockCount,
       icon: AlertTriangle,
-      description: "Products below threshold",
+      description: "Dikkat gerektiren ürünler",
       alert: true,
     },
     {
-      title: "Blog Posts",
-      value: blogData?.totalCount || 0,
-      icon: FileText,
-      description: "Published articles",
-    },
-    {
-      title: "Views This Month",
-      value: "1,234",
-      icon: TrendingUp,
-      description: "Product views",
+      title: "Kategoriler",
+      value: categoriesData?.length || 0,
+      icon: FolderTree,
+      description: "Tanımlı kategoriler",
     },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of your store</p>
+        <h1 className="text-3xl font-bold">Panel</h1>
+        <p className="text-muted-foreground">Mağazanızın genel görünümü</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -84,25 +85,34 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>Hızlı İşlemler</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <a
               href="/admin/products/new"
               className="block p-3 rounded-lg hover:bg-accent transition-colors"
             >
-              <div className="font-medium">Add New Product</div>
+              <div className="font-medium">Yeni Ürün Ekle</div>
               <div className="text-sm text-muted-foreground">
-                Create a new product listing
+                Kataloğa yeni bir ürün ekleyin
               </div>
             </a>
             <a
-              href="/admin/blog/new"
+              href="/admin/categories/new"
               className="block p-3 rounded-lg hover:bg-accent transition-colors"
             >
-              <div className="font-medium">Write Blog Post</div>
+              <div className="font-medium">Kategori Ekle</div>
               <div className="text-sm text-muted-foreground">
-                Publish a new article
+                Yeni bir ürün kategorisi oluşturun
+              </div>
+            </a>
+            <a
+              href="/admin/settings"
+              className="block p-3 rounded-lg hover:bg-accent transition-colors"
+            >
+              <div className="font-medium">Ayarlar & WhatsApp</div>
+              <div className="text-sm text-muted-foreground">
+                Mağaza bilgileri ve ana sayfa slaytı
               </div>
             </a>
           </CardContent>
@@ -110,11 +120,11 @@ export default function AdminDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>Son Etkinlikler</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              No recent activity to display
+              Gösterilecek son etkinlik yok
             </p>
           </CardContent>
         </Card>

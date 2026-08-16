@@ -22,14 +22,14 @@ export function OrderTimeline({
     : currentStatus;
 
   const steps = [
-    { status: OrderStatus.Pending, label: "Order Placed", date: submittedAt || createdAt },
-    { status: OrderStatus.QuoteSent, label: "Quote Sent", date: null },
-    { status: OrderStatus.Confirmed, label: "Confirmed", date: confirmedAt },
-    { status: OrderStatus.Preparing, label: "Preparing", date: null },
-    { status: OrderStatus.QualityCheck, label: "Quality Check", date: null },
-    { status: OrderStatus.ReadyToShip, label: "Ready to Ship", date: null },
-    { status: OrderStatus.Shipping, label: "Shipping", date: null },
-    { status: OrderStatus.Delivered, label: "Delivered", date: null },
+    { status: OrderStatus.Pending, label: "Sipariş Alındı", date: submittedAt || createdAt },
+    { status: OrderStatus.QuoteSent, label: "Teklif Gönderildi", date: null },
+    { status: OrderStatus.Confirmed, label: "Onaylandı", date: confirmedAt },
+    { status: OrderStatus.Preparing, label: "Hazırlanıyor", date: null },
+    { status: OrderStatus.QualityCheck, label: "Kalite Kontrol", date: null },
+    { status: OrderStatus.ReadyToShip, label: "Gönderime Hazır", date: null },
+    { status: OrderStatus.Shipping, label: "Kargoda", date: null },
+    { status: OrderStatus.Delivered, label: "Teslim Edildi", date: null },
   ];
 
   const isStepComplete = (stepStatus: OrderStatus) => {
@@ -92,7 +92,7 @@ export function OrderTimeline({
               </div>
               {step.date && (
                 <div className="text-xs text-gray-400 mt-1">
-                  {new Date(step.date).toLocaleDateString()}
+                  {new Date(step.date).toLocaleDateString("tr-TR")}
                 </div>
               )}
             </div>

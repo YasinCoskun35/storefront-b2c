@@ -19,7 +19,12 @@ public sealed class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQue
     {
         var query = _context.Categories.AsQueryable();
 
-        if (request.ParentId is not null)
+        if (request.IncludeAll)
+        {
+            // Return every category (all levels) — used by admin management and
+            // the storefront mega menu that builds the full parent/child tree.
+        }
+        else if (request.ParentId is not null)
         {
             query = query.Where(c => c.ParentId == request.ParentId);
         }

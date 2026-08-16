@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Search, ShoppingBag, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,12 +18,11 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ENABLE_ORDERING } from "@/lib/config";
 import { CartCountBadge, useCartCount } from "./cart-badge";
+import { CategoryMegaMenu, MobileCategoryLinks } from "./mega-menu";
 
 const NAV_LINKS = [
-  { href: "/products", label: "Products" },
-  { href: "/blog", label: "Blog" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "Hakkımızda" },
+  { href: "/contact", label: "İletişim" },
 ];
 
 export function Header() {
@@ -51,7 +51,7 @@ export function Header() {
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">Menüyü aç</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex w-4/5 max-w-xs flex-col">
@@ -62,8 +62,8 @@ export function Header() {
                   className="flex items-center gap-2 font-display text-lg font-bold"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <ShoppingBag className="h-5 w-5 text-primary" />
-                  Storefront
+                  <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={28} height={28} />
+                  Harun Yapı Market
                 </Link>
               </SheetTitle>
             </SheetHeader>
@@ -72,39 +72,58 @@ export function Header() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search products..."
+                placeholder="Ürün ara..."
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </form>
 
-            <nav className="mt-6 flex flex-1 flex-col gap-1">
-              {NAV_LINKS.map((link) => (
-                <SheetClose asChild key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={cn(
-                      "rounded-md px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
-                      pathname === link.href && "bg-muted text-primary"
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                </SheetClose>
-              ))}
+            <nav className="mt-6 flex flex-1 flex-col gap-1 overflow-y-auto">
+              <SheetClose asChild>
+                <Link
+                  href="/products"
+                  className={cn(
+                    "rounded-md px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
+                    pathname === "/products" && "bg-muted text-primary"
+                  )}
+                >
+                  Ürünler
+                </Link>
+              </SheetClose>
+
+              <MobileCategoryLinks onNavigate={() => setMenuOpen(false)} />
+
+              <div className="mt-2 border-t pt-2">
+                {NAV_LINKS.map((link) => (
+                  <SheetClose asChild key={link.href}>
+                    <Link
+                      href={link.href}
+                      className={cn(
+                        "block rounded-md px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
+                        pathname === link.href && "bg-muted text-primary"
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </div>
             </nav>
           </SheetContent>
         </Sheet>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-display">
-          <ShoppingBag className="h-6 w-6 text-primary" />
-          <span className="text-lg font-bold tracking-tight">Storefront</span>
+        <Link href="/" className="flex items-center gap-2 font-display text-foreground">
+          <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={32} height={32} priority />
+          <span className="hidden text-lg font-bold tracking-tight sm:inline">
+            Harun Yapı Market
+          </span>
         </Link>
 
         {/* Desktop navigation */}
         <nav className="ml-4 hidden flex-1 items-center gap-6 text-sm font-medium md:flex">
+          <CategoryMegaMenu />
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -126,7 +145,7 @@ export function Header() {
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search products..."
+                placeholder="Ürün ara..."
                 className="pl-8"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -143,7 +162,7 @@ export function Header() {
             onClick={() => setMobileSearchOpen((v) => !v)}
           >
             {mobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-            <span className="sr-only">Toggle search</span>
+            <span className="sr-only">Aramayı aç/kapat</span>
           </Button>
 
           {/* Cart (only when ordering is enabled) */}
@@ -151,7 +170,7 @@ export function Header() {
             <Link href="/cart" className="relative ml-1">
               <Button size="icon" variant="ghost">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="sr-only">Cart</span>
+                <span className="sr-only">Sepet</span>
               </Button>
               <CartCountBadge count={cartCount} />
             </Link>
@@ -167,7 +186,7 @@ export function Header() {
               <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search products..."
+                placeholder="Ürün ara..."
                 className="pl-8"
                 autoFocus
                 value={searchQuery}

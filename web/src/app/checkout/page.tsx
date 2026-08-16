@@ -43,7 +43,7 @@ export default function CheckoutPage() {
     deliveryCity: "",
     deliveryState: "",
     deliveryPostalCode: "",
-    deliveryCountry: "Turkey",
+    deliveryCountry: "Türkiye",
     deliveryNotes: "",
     notes: "",
   });
@@ -56,7 +56,7 @@ export default function CheckoutPage() {
     e.preventDefault();
 
     if (!form.guestEmail || !form.guestName || !form.deliveryAddress || !form.deliveryCity) {
-      toast.error("Please fill in all required fields");
+      toast.error("Lütfen zorunlu alanları doldurun");
       return;
     }
 
@@ -79,7 +79,7 @@ export default function CheckoutPage() {
       // No online payment — order is placed and the shop follows up to arrange payment/delivery.
       router.push(`/checkout/success?orderId=${orderId}`);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Checkout failed");
+      toast.error(err.response?.data?.message || "Sipariş tamamlanamadı");
       setSubmitting(false);
     }
   };
@@ -87,10 +87,10 @@ export default function CheckoutPage() {
   if (!loading && (!cart || cart.items.length === 0)) {
     return (
       <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-20 text-center">
-        <h1 className="font-display text-2xl font-bold">Your cart is empty</h1>
-        <p className="text-muted-foreground">Add some products before checking out.</p>
+        <h1 className="font-display text-2xl font-bold">Sepetiniz boş</h1>
+        <p className="text-muted-foreground">Ödeme yapmadan önce sepetinize ürün ekleyin.</p>
         <Link href="/products">
-          <Button size="lg">Browse Products</Button>
+          <Button size="lg">Ürünleri İncele</Button>
         </Link>
       </div>
     );
@@ -98,42 +98,42 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="mb-8 font-display text-3xl font-bold">Checkout</h1>
+      <h1 className="mb-8 font-display text-3xl font-bold">Ödeme</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <form onSubmit={handleSubmit} className="space-y-6 lg:col-span-2">
           {/* Contact Information */}
           <div className="space-y-4 rounded-xl border bg-card p-6">
-            <h2 className="font-display text-xl font-semibold">Contact Information</h2>
+            <h2 className="font-display text-xl font-semibold">İletişim Bilgileri</h2>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="guestName">Full Name *</Label>
+                <Label htmlFor="guestName">Ad Soyad *</Label>
                 <Input
                   id="guestName"
                   name="guestName"
                   value={form.guestName}
                   onChange={handleChange}
-                  placeholder="John Doe"
+                  placeholder="Ad Soyad"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="guestEmail">Email *</Label>
+                <Label htmlFor="guestEmail">E-posta *</Label>
                 <Input
                   id="guestEmail"
                   name="guestEmail"
                   type="email"
                   value={form.guestEmail}
                   onChange={handleChange}
-                  placeholder="john@example.com"
+                  placeholder="ornek@eposta.com"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="guestPhone">Phone</Label>
+              <Label htmlFor="guestPhone">Telefon</Label>
               <Input
                 id="guestPhone"
                 name="guestPhone"
@@ -146,47 +146,47 @@ export default function CheckoutPage() {
 
           {/* Shipping Address */}
           <div className="space-y-4 rounded-xl border bg-card p-6">
-            <h2 className="font-display text-xl font-semibold">Shipping Address</h2>
+            <h2 className="font-display text-xl font-semibold">Teslimat Adresi</h2>
 
             <div className="space-y-2">
-              <Label htmlFor="deliveryAddress">Address *</Label>
+              <Label htmlFor="deliveryAddress">Adres *</Label>
               <Input
                 id="deliveryAddress"
                 name="deliveryAddress"
                 value={form.deliveryAddress}
                 onChange={handleChange}
-                placeholder="Street address"
+                placeholder="Sokak / cadde adresi"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="deliveryCity">City *</Label>
+                <Label htmlFor="deliveryCity">Şehir *</Label>
                 <Input
                   id="deliveryCity"
                   name="deliveryCity"
                   value={form.deliveryCity}
                   onChange={handleChange}
-                  placeholder="Istanbul"
+                  placeholder="İstanbul"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="deliveryState">State / Province</Label>
+                <Label htmlFor="deliveryState">İl / İlçe</Label>
                 <Input
                   id="deliveryState"
                   name="deliveryState"
                   value={form.deliveryState}
                   onChange={handleChange}
-                  placeholder="Istanbul"
+                  placeholder="İstanbul"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="deliveryPostalCode">Postal Code</Label>
+                <Label htmlFor="deliveryPostalCode">Posta Kodu</Label>
                 <Input
                   id="deliveryPostalCode"
                   name="deliveryPostalCode"
@@ -196,25 +196,25 @@ export default function CheckoutPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="deliveryCountry">Country</Label>
+                <Label htmlFor="deliveryCountry">Ülke</Label>
                 <Input
                   id="deliveryCountry"
                   name="deliveryCountry"
                   value={form.deliveryCountry}
                   onChange={handleChange}
-                  placeholder="Turkey"
+                  placeholder="Türkiye"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deliveryNotes">Delivery Notes</Label>
+              <Label htmlFor="deliveryNotes">Teslimat Notları</Label>
               <Textarea
                 id="deliveryNotes"
                 name="deliveryNotes"
                 value={form.deliveryNotes}
                 onChange={handleChange}
-                placeholder="Any special delivery instructions..."
+                placeholder="Özel teslimat talimatları..."
                 rows={2}
               />
             </div>
@@ -222,34 +222,34 @@ export default function CheckoutPage() {
 
           {/* Order Notes */}
           <div className="space-y-2 rounded-xl border bg-card p-6">
-            <Label htmlFor="notes">Order Notes</Label>
+            <Label htmlFor="notes">Sipariş Notları</Label>
             <Textarea
               id="notes"
               name="notes"
               value={form.notes}
               onChange={handleChange}
-              placeholder="Any additional notes for your order..."
+              placeholder="Siparişinizle ilgili ek notlar..."
               rows={3}
             />
           </div>
 
           <Button type="submit" size="lg" className="w-full" disabled={submitting || loading}>
             <ShieldCheck className="mr-2 h-4 w-4" />
-            {submitting ? "Placing order..." : "Place Order"}
+            {submitting ? "Sipariş veriliyor..." : "Siparişi Ver"}
           </Button>
           <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5" />
-            No online payment required — we&apos;ll contact you to confirm your order and arrange payment.
+            Online ödeme gerekmez — siparişinizi onaylamak ve ödemeyi ayarlamak için sizinle iletişime geçeceğiz.
           </p>
         </form>
 
         {/* Order summary */}
         <div className="lg:col-span-1">
           <div className="sticky top-20 space-y-4 rounded-xl border bg-card p-6">
-            <h2 className="font-display text-lg font-semibold">Order Summary</h2>
+            <h2 className="font-display text-lg font-semibold">Sipariş Özeti</h2>
 
             {loading ? (
-              <p className="text-sm text-muted-foreground">Loading cart...</p>
+              <p className="text-sm text-muted-foreground">Sepet yükleniyor...</p>
             ) : (
               <>
                 <ul className="max-h-72 space-y-3 overflow-y-auto pr-1">
@@ -277,7 +277,7 @@ export default function CheckoutPage() {
                 </ul>
 
                 <div className="flex justify-between border-t pt-4 text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">Ara Toplam</span>
                   {hasAllPrices ? (
                     <span className="font-semibold">{formatPrice(subtotal)}</span>
                   ) : (
@@ -285,7 +285,7 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Shipping and any final costs are confirmed by the shop when they contact you.
+                  Kargo ve nihai tutar, mağaza sizinle iletişime geçtiğinde onaylanır.
                 </p>
               </>
             )}

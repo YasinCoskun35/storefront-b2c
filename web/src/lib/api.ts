@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
 
 // Determine if we're running on the server or client
 const isServer = typeof window === "undefined";
@@ -18,6 +18,82 @@ export const api: AxiosInstance = axios.create({
   },
   withCredentials: true, // Important for HttpOnly cookies
 });
+
+// Attach the JWT access token (stored at login) to authenticated requests.
+// The backend uses Bearer authentication, so admin endpoints 401 without this.
+api.interceptors.request.use((config) => {
+  if (!isServer) {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// --- Automatic access-token refresh on 401 -------------------------------
+// A single in-flight refresh is shared by all requests that 401 at once, so we
+// only hit the refresh endpoint once and then replay the queued requests.
+let refreshPromise: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  try {
+    const res = await fetch("/api/auth/refresh", { method: "POST" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data?.accessToken) {
+      localStorage.setItem("accessToken", data.accessToken);
+      if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+      return data.accessToken as string;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const original = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
+
+    const url = original?.url ?? "";
+    const isAuthCall = url.includes("/auth/refresh") || url.includes("/auth/login");
+
+    // Only try to recover browser requests that failed with 401 exactly once.
+    if (
+      isServer ||
+      !original ||
+      original._retry ||
+      isAuthCall ||
+      error.response?.status !== 401
+    ) {
+      return Promise.reject(error);
+    }
+
+    original._retry = true;
+
+    // Share one refresh across all concurrent 401s.
+    refreshPromise = refreshPromise ?? refreshAccessToken();
+    const newToken = await refreshPromise;
+    refreshPromise = null;
+
+    if (!newToken) {
+      // Refresh failed — clear session and send the user to login.
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
+      if (!window.location.pathname.startsWith("/login")) {
+        window.location.href = "/login";
+      }
+      return Promise.reject(error);
+    }
+
+    original.headers.Authorization = `Bearer ${newToken}`;
+    return api(original);
+  }
+);
 
 // API Types
 export interface Product {
@@ -129,7 +205,7 @@ export interface CreateProductDto {
   sku: string;
   description?: string;
   shortDescription?: string;
-  price: number;
+  price?: number;
   compareAtPrice?: number;
   stockStatus: string;
   quantity: number;
@@ -179,6 +255,18 @@ export const catalogApi = {
     return response.data;
   },
 
+  updateProduct: async (
+    id: string,
+    product: CreateProductDto
+  ): Promise<{ id: string }> => {
+    const response = await api.put(`/api/catalog/products/${id}`, product);
+    return response.data;
+  },
+
+  deleteProduct: async (id: string): Promise<void> => {
+    await api.delete(`/api/catalog/products/${id}`);
+  },
+
   uploadProductImage: async (
     productId: string,
     file: File,
@@ -206,9 +294,64 @@ export const catalogApi = {
     return response.data;
   },
 
+  // Returns categories at every level (roots + subcategories). Used by the
+  // mega menu and admin. `includeInactive` also returns hidden categories.
+  getAllCategories: async (opts?: {
+    includeInactive?: boolean;
+  }): Promise<Category[]> => {
+    const response = await api.get("/api/catalog/categories", {
+      params: { all: true, includeInactive: opts?.includeInactive ?? false },
+    });
+    return response.data;
+  },
+
   createCategory: async (category: CreateCategoryDto): Promise<{ id: string }> => {
     const response = await api.post("/api/catalog/categories", category);
     return response.data;
+  },
+
+  updateCategory: async (
+    id: string,
+    category: CreateCategoryDto
+  ): Promise<{ id: string }> => {
+    const response = await api.put(`/api/catalog/categories/${id}`, category);
+    return response.data;
+  },
+
+  deleteCategory: async (id: string): Promise<void> => {
+    await api.delete(`/api/catalog/categories/${id}`);
+  },
+};
+
+// Admin user management
+export interface AdminUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  isActive: boolean;
+  roles: string[];
+}
+
+export interface CreateUserDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+}
+
+export const usersApi = {
+  getUsers: async (): Promise<AdminUser[]> => {
+    const response = await api.get("/api/identity/users");
+    return response.data;
+  },
+  createUser: async (user: CreateUserDto): Promise<AdminUser> => {
+    const response = await api.post("/api/identity/users", user);
+    return response.data;
+  },
+  setStatus: async (id: string, isActive: boolean): Promise<void> => {
+    await api.put(`/api/identity/users/${id}/status`, { isActive });
   },
 };
 

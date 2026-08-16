@@ -54,7 +54,7 @@ export function CartItemCard({
 
         {item.colorOptionName && (
           <div className="mt-2 flex items-center gap-2">
-            <span className="text-xs text-gray-500">Color:</span>
+            <span className="text-xs text-gray-500">Renk:</span>
             <div className="flex items-center gap-2">
               {item.colorOptionCode && (
                 <span className="text-xs font-medium text-gray-700">
@@ -68,7 +68,7 @@ export function CartItemCard({
 
         {item.customizationNotes && (
           <div className="mt-2">
-            <span className="text-xs text-gray-500">Notes:</span>
+            <span className="text-xs text-gray-500">Notlar:</span>
             <p className="text-xs text-gray-700 mt-1">{item.customizationNotes}</p>
           </div>
         )}
@@ -96,7 +96,7 @@ export function CartItemCard({
               </Button>
             </div>
           ) : (
-            <span className="text-sm text-gray-600">Quantity: {item.quantity}</span>
+            <span className="text-sm text-gray-600">Adet: {item.quantity}</span>
           )}
         </div>
       </div>

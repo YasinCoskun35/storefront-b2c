@@ -3,18 +3,18 @@ import { Mail, MapPin, Phone } from "lucide-react";
 const CONTACT_METHODS = [
   {
     icon: Mail,
-    title: "Email",
-    lines: ["info@storefront.com", "support@storefront.com"],
+    title: "E-posta",
+    lines: ["info@harunyapimarket.com", "destek@harunyapimarket.com"],
   },
   {
     icon: Phone,
-    title: "Phone",
-    lines: ["+90 555 000 0000", "Mon-Fri: 9AM - 6PM"],
+    title: "Telefon",
+    lines: ["+90 555 000 0000", "Hafta içi: 09:00 - 18:00"],
   },
   {
     icon: MapPin,
-    title: "Address",
-    lines: ["Istanbul, Turkey"],
+    title: "Adres",
+    lines: ["İstanbul, Türkiye"],
   },
 ];
 
@@ -23,9 +23,9 @@ export default function ContactPage() {
     <div className="container mx-auto px-4 py-16">
       <div className="mx-auto max-w-4xl">
         <div className="mb-12 text-center">
-          <h1 className="font-display text-4xl font-bold">Contact Us</h1>
+          <h1 className="font-display text-4xl font-bold">İletişim</h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Get in touch with us for product inquiries and support
+            Ürünlerle ilgili sorularınız ve destek için bize ulaşın
           </p>
         </div>
 
@@ -52,8 +52,8 @@ export default function ContactPage() {
 
         <div className="mt-12 rounded-xl border bg-muted/30 p-6 text-center">
           <p className="text-muted-foreground">
-            For product purchases, please browse our catalog and check out
-            online, or reach out with any questions before you order.
+            Ürünlerimizi katalogdan inceleyebilir, sipariş öncesi
+            aklınıza takılan her şeyi bize sorabilirsiniz.
           </p>
         </div>
       </div>

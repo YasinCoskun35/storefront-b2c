@@ -35,7 +35,7 @@ export default function AdminSettingsPage() {
     settingsApi
       .get()
       .then((data) => setSettings({ ...EMPTY_SETTINGS, ...data, slides: data.slides ?? [] }))
-      .catch(() => toast({ title: "Failed to load settings", variant: "destructive" }))
+      .catch(() => toast({ title: "Ayarlar yüklenemedi", variant: "destructive" }))
       .finally(() => setLoading(false));
   }, [toast]);
 
@@ -73,9 +73,9 @@ export default function AdminSettingsPage() {
     try {
       const saved = await settingsApi.update(cleaned);
       setSettings({ ...EMPTY_SETTINGS, ...saved, slides: saved.slides ?? [] });
-      toast({ title: "Settings saved", description: "Your store settings have been updated." });
+      toast({ title: "Ayarlar kaydedildi", description: "Mağaza ayarlarınız güncellendi." });
     } catch {
-      toast({ title: "Save failed", description: "Could not save settings.", variant: "destructive" });
+      toast({ title: "Kaydedilemedi", description: "Ayarlar kaydedilemedi.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -84,7 +84,7 @@ export default function AdminSettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading settings...
+        <Loader2 className="h-4 w-4 animate-spin" /> Ayarlar yükleniyor...
       </div>
     );
   }
@@ -93,38 +93,38 @@ export default function AdminSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-secondary">Settings</h1>
-          <p className="text-muted-foreground">Manage your store details, WhatsApp, and homepage slider</p>
+          <h1 className="font-display text-3xl font-bold text-secondary">Ayarlar</h1>
+          <p className="text-muted-foreground">Mağaza bilgilerinizi, WhatsApp ve ana sayfa slaytını yönetin</p>
         </div>
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSaving ? "Saving..." : "Save Changes"}
+          {isSaving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
         </Button>
       </div>
 
       {/* General */}
       <Card>
         <CardHeader>
-          <CardTitle>Store Information</CardTitle>
-          <CardDescription>Shown across the storefront and in the footer.</CardDescription>
+          <CardTitle>Mağaza Bilgileri</CardTitle>
+          <CardDescription>Mağaza genelinde ve alt bilgide gösterilir.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <Field label="Store Name">
+          <Field label="Mağaza Adı">
             <Input value={settings.storeName} onChange={(e) => setField("storeName", e.target.value)} />
           </Field>
-          <Field label="Contact Email">
+          <Field label="İletişim E-postası">
             <Input type="email" value={settings.contactEmail ?? ""} onChange={(e) => setField("contactEmail", e.target.value)} />
           </Field>
-          <Field label="Contact Phone">
+          <Field label="İletişim Telefonu">
             <Input value={settings.contactPhone ?? ""} onChange={(e) => setField("contactPhone", e.target.value)} />
           </Field>
-          <Field label="Address">
+          <Field label="Adres">
             <Input value={settings.address ?? ""} onChange={(e) => setField("address", e.target.value)} />
           </Field>
-          <Field label="Instagram URL">
+          <Field label="Instagram Bağlantısı">
             <Input value={settings.instagramUrl ?? ""} onChange={(e) => setField("instagramUrl", e.target.value)} placeholder="https://instagram.com/..." />
           </Field>
-          <Field label="Facebook URL">
+          <Field label="Facebook Bağlantısı">
             <Input value={settings.facebookUrl ?? ""} onChange={(e) => setField("facebookUrl", e.target.value)} placeholder="https://facebook.com/..." />
           </Field>
         </CardContent>
@@ -135,16 +135,16 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <CardTitle>WhatsApp</CardTitle>
           <CardDescription>
-            Powers the floating chat button and product enquiries. Enter the number in
-            international format (country code + number), e.g. <code>905551112233</code>.
+            Yüzen sohbet düğmesini ve ürün sorularını çalıştırır. Numarayı uluslararası
+            biçimde girin (ülke kodu + numara), örn. <code>905551112233</code>.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <Field label="WhatsApp Number">
+          <Field label="WhatsApp Numarası">
             <Input value={settings.whatsAppNumber ?? ""} onChange={(e) => setField("whatsAppNumber", e.target.value)} placeholder="905551112233" />
           </Field>
-          <Field label="Default Message (optional)">
-            <Input value={settings.whatsAppMessage ?? ""} onChange={(e) => setField("whatsAppMessage", e.target.value)} placeholder="Hi! I'd like to ask about..." />
+          <Field label="Varsayılan Mesaj (isteğe bağlı)">
+            <Input value={settings.whatsAppMessage ?? ""} onChange={(e) => setField("whatsAppMessage", e.target.value)} placeholder="Merhaba! Şunu sormak istiyorum..." />
           </Field>
         </CardContent>
       </Card>
@@ -154,17 +154,17 @@ export default function AdminSettingsPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Homepage Slider</CardTitle>
-              <CardDescription>Images shown at the top of the homepage. Leave empty to use the default hero.</CardDescription>
+              <CardTitle>Ana Sayfa Slaytı</CardTitle>
+              <CardDescription>Ana sayfanın üstünde gösterilen görseller. Boş bırakırsanız varsayılan görsel kullanılır.</CardDescription>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={addSlide}>
-              <Plus className="mr-1.5 h-4 w-4" /> Add Slide
+              <Plus className="mr-1.5 h-4 w-4" /> Slayt Ekle
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {settings.slides.length === 0 && (
-            <p className="text-sm text-muted-foreground">No slides yet. Add one to build your slider.</p>
+            <p className="text-sm text-muted-foreground">Henüz slayt yok. Slayt oluşturmak için birini ekleyin.</p>
           )}
           {settings.slides.map((slide, i) => (
             <SlideEditor
@@ -175,7 +175,7 @@ export default function AdminSettingsPage() {
               onChange={(patch) => updateSlide(i, patch)}
               onRemove={() => removeSlide(i)}
               onMove={(dir) => moveSlide(i, dir)}
-              onUploadError={() => toast({ title: "Upload failed", variant: "destructive" })}
+              onUploadError={() => toast({ title: "Yükleme başarısız", variant: "destructive" })}
             />
           ))}
         </CardContent>
@@ -184,7 +184,7 @@ export default function AdminSettingsPage() {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={isSaving}>
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isSaving ? "Saving..." : "Save Changes"}
+          {isSaving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
         </Button>
       </div>
     </div>
@@ -237,7 +237,7 @@ function SlideEditor({
   return (
     <div className="rounded-lg border p-4">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-medium">Slide {index + 1}</span>
+        <span className="text-sm font-medium">Slayt {index + 1}</span>
         <div className="flex items-center gap-1">
           <Button type="button" variant="ghost" size="icon" disabled={index === 0} onClick={() => onMove(-1)}>
             <ArrowUp className="h-4 w-4" />
@@ -255,9 +255,9 @@ function SlideEditor({
         <div>
           <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-md border bg-muted">
             {preview ? (
-              <Image src={preview} alt={slide.headline || `Slide ${index + 1}`} fill className="object-cover" sizes="200px" />
+              <Image src={preview} alt={slide.headline || `Slayt ${index + 1}`} fill className="object-cover" sizes="200px" />
             ) : (
-              <span className="text-xs text-muted-foreground">No image</span>
+              <span className="text-xs text-muted-foreground">Görsel yok</span>
             )}
           </div>
           <input
@@ -276,22 +276,22 @@ function SlideEditor({
             onClick={() => fileRef.current?.click()}
           >
             {uploading ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Upload className="mr-1.5 h-4 w-4" />}
-            {uploading ? "Uploading..." : "Upload image"}
+            {uploading ? "Yükleniyor..." : "Görsel yükle"}
           </Button>
         </div>
 
         <div className="space-y-3">
-          <Field label="Headline">
-            <Input value={slide.headline ?? ""} onChange={(e) => onChange({ headline: e.target.value })} placeholder="Big seasonal sale" />
+          <Field label="Başlık">
+            <Input value={slide.headline ?? ""} onChange={(e) => onChange({ headline: e.target.value })} placeholder="Büyük sezon indirimi" />
           </Field>
-          <Field label="Subtext">
-            <Textarea rows={2} value={slide.subtext ?? ""} onChange={(e) => onChange({ subtext: e.target.value })} placeholder="Short supporting line" />
+          <Field label="Alt Metin">
+            <Textarea rows={2} value={slide.subtext ?? ""} onChange={(e) => onChange({ subtext: e.target.value })} placeholder="Kısa açıklama satırı" />
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Button Label">
-              <Input value={slide.ctaLabel ?? ""} onChange={(e) => onChange({ ctaLabel: e.target.value })} placeholder="Shop now" />
+            <Field label="Düğme Metni">
+              <Input value={slide.ctaLabel ?? ""} onChange={(e) => onChange({ ctaLabel: e.target.value })} placeholder="Alışverişe başla" />
             </Field>
-            <Field label="Button Link">
+            <Field label="Düğme Bağlantısı">
               <Input value={slide.ctaLink ?? ""} onChange={(e) => onChange({ ctaLink: e.target.value })} placeholder="/products" />
             </Field>
           </div>

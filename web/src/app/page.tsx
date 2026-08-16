@@ -8,23 +8,23 @@ import { catalogApi, settingsApi } from "@/lib/api";
 const VALUE_PROPS = [
   {
     icon: Truck,
-    title: "Fast Delivery",
-    description: "Reliable shipping straight to your door or job site.",
+    title: "Hızlı Teslimat",
+    description: "Kapınıza veya şantiyenize güvenilir teslimat.",
   },
   {
     icon: ShieldCheck,
-    title: "Secure Payment",
-    description: "Checkout is processed securely through iyzico.",
+    title: "Güvenli Ödeme",
+    description: "Ödemeler iyzico ile güvenli şekilde işlenir.",
   },
   {
     icon: Wrench,
-    title: "Professional Grade",
-    description: "A curated catalog of durable, dependable tools.",
+    title: "Profesyonel Kalite",
+    description: "Dayanıklı ve güvenilir ürünlerden oluşan seçkin bir katalog.",
   },
   {
     icon: Package,
-    title: "Always in Stock",
-    description: "Live inventory so you know what's available now.",
+    title: "Her Zaman Stokta",
+    description: "Anlık stok takibiyle nelerin mevcut olduğunu görün.",
   },
 ];
 
@@ -72,20 +72,20 @@ export default async function HomePage() {
         <div className="container relative mx-auto px-4 py-20 md:py-28">
           <div className="mx-auto max-w-2xl text-center">
             <span className="inline-flex items-center rounded-full border border-secondary-foreground/20 bg-secondary-foreground/5 px-3 py-1 text-xs font-medium uppercase tracking-wide text-secondary-foreground/70">
-              Quality Hardware &amp; Tools
+              Kaliteli Hırdavat ve Yapı Malzemeleri
             </span>
             <h1 className="mt-6 font-display text-4xl font-bold tracking-tight text-balance md:text-6xl">
-              Everything you need to{" "}
-              <span className="text-primary">get the job done</span>
+              İşinizi bitirmek için{" "}
+              <span className="text-primary">ihtiyacınız olan her şey</span>
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-secondary-foreground/70">
-              Professional-grade tools and equipment for tradespeople and DIY
-              enthusiasts alike, delivered fast and paid for securely.
+              Ustalar ve kendin-yap meraklıları için profesyonel kalitede
+              ürünler; hızlı teslimat ve güvenli ödeme.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/products">
                 <Button size="lg" className="w-full sm:w-auto">
-                  Browse Products
+                  Ürünleri İncele
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -95,7 +95,7 @@ export default async function HomePage() {
                   variant="outline"
                   className="w-full border-secondary-foreground/20 bg-transparent text-secondary-foreground hover:bg-secondary-foreground/10 hover:text-secondary-foreground sm:w-auto"
                 >
-                  Learn More
+                  Daha Fazla Bilgi
                 </Button>
               </Link>
             </div>
@@ -124,16 +124,16 @@ export default async function HomePage() {
         <section className="container mx-auto px-4 py-16">
           <div className="mb-8 flex items-end justify-between">
             <div>
-              <h2 className="font-display text-3xl font-bold">Shop by Category</h2>
+              <h2 className="font-display text-3xl font-bold">Kategoriye Göre Alışveriş</h2>
               <p className="mt-1 text-muted-foreground">
-                Find exactly what your project needs.
+                Projeniz için tam ihtiyacınız olanı bulun.
               </p>
             </div>
             <Link
               href="/products"
               className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:flex"
             >
-              View all products
+              Tüm ürünleri gör
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -150,7 +150,7 @@ export default async function HomePage() {
                     {category.name}
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {category.productCount} {category.productCount === 1 ? "product" : "products"}
+                    {category.productCount} ürün
                   </p>
                 </div>
                 <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
@@ -166,16 +166,16 @@ export default async function HomePage() {
           <div className="container mx-auto px-4 py-16">
             <div className="mb-8 flex items-end justify-between">
               <div>
-                <h2 className="font-display text-3xl font-bold">Featured Products</h2>
+                <h2 className="font-display text-3xl font-bold">Öne Çıkan Ürünler</h2>
                 <p className="mt-1 text-muted-foreground">
-                  Popular picks from our catalog.
+                  Katalogumuzdan popüler seçimler.
                 </p>
               </div>
               <Link
                 href="/products"
                 className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:flex"
               >
-                View all products
+                Tüm ürünleri gör
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -203,10 +203,10 @@ export default async function HomePage() {
         <div className="flex flex-col items-center gap-6 rounded-2xl bg-primary px-6 py-12 text-center text-primary-foreground sm:flex-row sm:justify-between sm:text-left">
           <div>
             <h2 className="font-display text-2xl font-bold sm:text-3xl">
-              Ready to start your next project?
+              Bir sonraki projenize başlamaya hazır mısınız?
             </h2>
             <p className="mt-2 text-primary-foreground/90">
-              Browse the full catalog and check out in minutes.
+              Tüm katalogu inceleyin, dakikalar içinde alışverişinizi tamamlayın.
             </p>
           </div>
           <Link href="/products">
@@ -215,7 +215,7 @@ export default async function HomePage() {
               variant="secondary"
               className="whitespace-nowrap bg-white text-primary hover:bg-white/90"
             >
-              Shop Now
+              Alışverişe Başla
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Storefront.Modules.Identity.Core.Domain.Entities;
@@ -9,11 +10,13 @@ public sealed class IdentityDataSeeder
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<IdentityDataSeeder> _logger;
+    private readonly IConfiguration _configuration;
 
-    public IdentityDataSeeder(IServiceProvider serviceProvider, ILogger<IdentityDataSeeder> logger)
+    public IdentityDataSeeder(IServiceProvider serviceProvider, ILogger<IdentityDataSeeder> logger, IConfiguration configuration)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task SeedAsync()
@@ -62,14 +65,26 @@ public sealed class IdentityDataSeeder
 
     private async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager)
     {
-        const string adminEmail = "admin@storefront.com";
-        const string adminPassword = "AdminPassword123!";
+        // Only ever used for local development when no override is configured.
+        // Production MUST set Admin__Email / Admin__Password (see docker-compose.prod.yml)
+        // — otherwise every deployment would share this same public, well-known login.
+        var configuredEmail = _configuration["Admin:Email"];
+        var configuredPassword = _configuration["Admin:Password"];
+        var adminEmail = string.IsNullOrWhiteSpace(configuredEmail) ? "admin@storefront.com" : configuredEmail;
+        var adminPassword = string.IsNullOrWhiteSpace(configuredPassword) ? "AdminPassword123!" : configuredPassword;
 
         var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
         if (existingAdmin is not null)
         {
             _logger.LogInformation("Admin user already exists.");
             return;
+        }
+
+        if (adminPassword == "AdminPassword123!")
+        {
+            _logger.LogWarning(
+                "Seeding the admin account with the default password. Set Admin__Email and " +
+                "Admin__Password before deploying to production.");
         }
 
         var adminUser = new ApplicationUser

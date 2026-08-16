@@ -1,46 +1,40 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Package,
   FolderTree,
-  FileText,
   Users,
   Settings,
-  ShoppingBag,
 } from "lucide-react";
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "Panel",
     href: "/admin/dashboard",
     icon: LayoutDashboard,
   },
   {
-    title: "Products",
+    title: "Ürünler",
     href: "/admin/products",
     icon: Package,
   },
   {
-    title: "Categories",
+    title: "Kategoriler",
     href: "/admin/categories",
     icon: FolderTree,
   },
   {
-    title: "Blog",
-    href: "/admin/blog",
-    icon: FileText,
-  },
-  {
-    title: "Users",
+    title: "Kullanıcılar",
     href: "/admin/users",
     icon: Users,
   },
   {
-    title: "Settings",
+    title: "Ayarlar",
     href: "/admin/settings",
     icon: Settings,
   },
@@ -53,8 +47,8 @@ export function AdminSidebar() {
     <div className="flex h-full w-64 flex-col border-r bg-muted/40">
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/admin/dashboard" className="flex items-center space-x-2">
-          <ShoppingBag className="h-6 w-6" />
-          <span className="text-lg font-bold">Admin</span>
+          <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={28} height={28} />
+          <span className="text-lg font-bold">Yönetim</span>
         </Link>
       </div>
       <nav className="flex-1 space-y-1 p-4">

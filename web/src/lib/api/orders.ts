@@ -258,17 +258,17 @@ export enum OrderStatus {
 }
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  [OrderStatus.Draft]: 'Draft',
-  [OrderStatus.Pending]: 'Pending',
-  [OrderStatus.QuoteSent]: 'Quote Sent',
-  [OrderStatus.Confirmed]: 'Confirmed',
-  [OrderStatus.Preparing]: 'Preparing',
-  [OrderStatus.QualityCheck]: 'Quality Check',
-  [OrderStatus.ReadyToShip]: 'Ready to Ship',
-  [OrderStatus.Shipping]: 'Shipping',
-  [OrderStatus.Delivered]: 'Delivered',
-  [OrderStatus.Cancelled]: 'Cancelled',
-  [OrderStatus.Rejected]: 'Rejected',
+  [OrderStatus.Draft]: 'Taslak',
+  [OrderStatus.Pending]: 'Beklemede',
+  [OrderStatus.QuoteSent]: 'Teklif Gönderildi',
+  [OrderStatus.Confirmed]: 'Onaylandı',
+  [OrderStatus.Preparing]: 'Hazırlanıyor',
+  [OrderStatus.QualityCheck]: 'Kalite Kontrol',
+  [OrderStatus.ReadyToShip]: 'Gönderime Hazır',
+  [OrderStatus.Shipping]: 'Kargoda',
+  [OrderStatus.Delivered]: 'Teslim Edildi',
+  [OrderStatus.Cancelled]: 'İptal Edildi',
+  [OrderStatus.Rejected]: 'Reddedildi',
 };
 
 export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
@@ -299,10 +299,10 @@ export enum CommentType {
 }
 
 export const COMMENT_TYPE_LABELS: Record<CommentType, string> = {
-  [CommentType.General]: 'General',
-  [CommentType.StatusChange]: 'Status Change',
-  [CommentType.Quote]: 'Quote',
-  [CommentType.Payment]: 'Payment',
-  [CommentType.Shipping]: 'Shipping',
-  [CommentType.Internal]: 'Internal',
+  [CommentType.General]: 'Genel',
+  [CommentType.StatusChange]: 'Durum Değişikliği',
+  [CommentType.Quote]: 'Teklif',
+  [CommentType.Payment]: 'Ödeme',
+  [CommentType.Shipping]: 'Kargo',
+  [CommentType.Internal]: 'Dahili',
 };

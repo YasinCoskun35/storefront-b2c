@@ -48,7 +48,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               key={img.id}
               type="button"
               onClick={() => setActiveIndex(index)}
-              aria-label={`View photo ${index + 1} of ${productName}`}
+              aria-label={`${productName} - ${index + 1}. fotoğrafı gör`}
               aria-current={index === activeIndex}
               className={cn(
                 "relative aspect-square overflow-hidden rounded-lg border-2 bg-muted transition-colors",

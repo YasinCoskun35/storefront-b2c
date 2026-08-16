@@ -15,17 +15,17 @@ function CheckoutFailContent() {
       <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
         <XCircle className="h-11 w-11 text-destructive" strokeWidth={1.5} />
       </div>
-      <h1 className="mt-6 font-display text-3xl font-bold">Payment Failed</h1>
+      <h1 className="mt-6 font-display text-3xl font-bold">Ödeme Başarısız</h1>
       <p className="mt-3 text-muted-foreground">
-        {error || "Your payment could not be processed. Please try again."}
+        {error || "Ödemeniz alınamadı. Lütfen tekrar deneyin."}
       </p>
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
         <Link href="/cart">
-          <Button size="lg">Return to Cart</Button>
+          <Button size="lg">Sepete Dön</Button>
         </Link>
         <Link href="/products">
           <Button size="lg" variant="outline">
-            Continue Shopping
+            Alışverişe Devam Et
           </Button>
         </Link>
       </div>

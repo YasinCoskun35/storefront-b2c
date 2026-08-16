@@ -1,17 +1,15 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storefront.Modules.Orders.Core.Application.Commands;
 using Storefront.Modules.Orders.Core.Application.Queries;
 using Storefront.Modules.Orders.Core.Domain.Enums;
+using Storefront.SharedKernel.Web;
 using System.Security.Claims;
 
 namespace Storefront.Modules.Orders.API.Controllers;
 
-[ApiController]
 [Route("api/admin/orders")]
-[Authorize(Roles = "Admin")]
-public class AdminOrdersController : ControllerBase
+public class AdminOrdersController : AdminControllerBase
 {
     private readonly IMediator _mediator;
 

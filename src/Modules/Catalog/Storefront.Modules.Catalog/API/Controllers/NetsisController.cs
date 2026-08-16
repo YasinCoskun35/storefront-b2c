@@ -1,14 +1,12 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storefront.Modules.Catalog.Core.Application.Commands;
+using Storefront.SharedKernel.Web;
 
 namespace Storefront.Modules.Catalog.API.Controllers;
 
-[ApiController]
 [Route("api/admin/netsis")]
-[Authorize(Roles = "Admin")]
-public sealed class NetsisController : ControllerBase
+public sealed class NetsisController : AdminControllerBase
 {
     private readonly IMediator _mediator;
 

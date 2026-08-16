@@ -74,7 +74,7 @@ export function ProductCard({
               )}
             </div>
           ) : (
-            <span className="text-sm text-muted-foreground">Price unavailable</span>
+            <span className="text-sm text-muted-foreground">Fiyat için sorunuz</span>
           )}
         </div>
 
@@ -82,7 +82,7 @@ export function ProductCard({
           href={`/products/${id}`}
           className="text-sm font-medium text-primary underline-offset-4 hover:underline"
         >
-          View details
+          Detayları gör
         </Link>
       </CardFooter>
     </Card>

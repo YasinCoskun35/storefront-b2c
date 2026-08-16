@@ -61,7 +61,7 @@ export function DataTable<T extends { id: string }>({
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
+            Sayfa {currentPage} / {totalPages}
           </p>
           <div className="flex gap-2">
             <Button
@@ -71,7 +71,7 @@ export function DataTable<T extends { id: string }>({
               disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
-              Previous
+              Önceki
             </Button>
             <Button
               variant="outline"
@@ -79,7 +79,7 @@ export function DataTable<T extends { id: string }>({
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              Next
+              Sonraki
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

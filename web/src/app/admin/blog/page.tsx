@@ -18,33 +18,33 @@ export default function AdminBlogPage() {
 
   const columns = [
     {
-      header: "Title",
+      header: "Başlık",
       accessor: "title" as keyof BlogPostSummary,
       cell: (value: string) => <span className="font-medium">{value}</span>,
     },
     {
-      header: "Slug",
+      header: "Kısa Ad",
       accessor: "slug" as keyof BlogPostSummary,
       cell: (value: string) => (
         <span className="text-xs text-muted-foreground font-mono">{value}</span>
       ),
     },
     {
-      header: "Author",
+      header: "Yazar",
       accessor: "author" as keyof BlogPostSummary,
     },
     {
-      header: "Published",
+      header: "Yayın Tarihi",
       accessor: "publishedAt" as keyof BlogPostSummary,
       cell: (value: string) =>
-        value ? new Date(value).toLocaleDateString() : "Draft",
+        value ? new Date(value).toLocaleDateString("tr-TR") : "Taslak",
     },
     {
-      header: "Views",
+      header: "Görüntülenme",
       accessor: "viewCount" as keyof BlogPostSummary,
     },
     {
-      header: "Actions",
+      header: "İşlemler",
       accessor: (row: BlogPostSummary) => (
         <div className="flex items-center gap-2">
           <Link href={`/admin/blog/${row.id}`}>
@@ -61,20 +61,20 @@ export default function AdminBlogPage() {
   ];
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Yükleniyor...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Blog Posts</h1>
-          <p className="text-muted-foreground">Manage your blog content</p>
+          <h1 className="text-3xl font-bold">Blog Yazıları</h1>
+          <p className="text-muted-foreground">Blog içeriğinizi yönetin</p>
         </div>
         <Link href="/admin/blog/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            New Post
+            Yeni Yazı
           </Button>
         </Link>
       </div>

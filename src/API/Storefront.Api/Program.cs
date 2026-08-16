@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Storefront.Api.Extensions;
 using Storefront.Modules.Identity;
 using Storefront.Modules.Catalog;
@@ -7,7 +8,14 @@ using Storefront.Modules.Orders;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Accept/emit enum values as their string names (e.g. "InStock"),
+        // matching the frontend. Integer values are still accepted on input.
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // Add CORS

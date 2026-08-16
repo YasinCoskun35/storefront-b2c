@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Storefront.Modules.Catalog.Core.Application.Commands;
 using Storefront.Modules.Catalog.Core.Application.Queries;
@@ -19,10 +20,13 @@ public sealed class CategoriesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCategories(
         [FromQuery] string? parentId,
-        [FromQuery] bool? isActive = true,
+        [FromQuery] bool all = false,
+        [FromQuery] bool includeInactive = false,
         CancellationToken cancellationToken = default)
     {
-        var query = new GetCategoriesQuery(parentId, isActive);
+        // Storefront callers get active categories; admin can include inactive.
+        bool? isActive = includeInactive ? null : true;
+        var query = new GetCategoriesQuery(parentId, isActive, all);
         var result = await _mediator.Send(query, cancellationToken);
 
         if (result.IsFailure)
@@ -34,6 +38,7 @@ public sealed class CategoriesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(
         [FromBody] CreateCategoryCommand command,
         CancellationToken cancellationToken)
@@ -52,6 +57,48 @@ public sealed class CategoriesController : ControllerBase
         }
 
         return CreatedAtAction(nameof(GetCategories), new { id = result.Value }, new { id = result.Value });
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Update(
+        string id,
+        [FromBody] UpdateCategoryCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "Conflict" => Conflict(new { error = result.Error.Code, message = result.Error.Message }),
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                "Validation" => BadRequest(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return Ok(new { id = result.Value });
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteCategoryCommand(id), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "Conflict" => Conflict(new { error = result.Error.Code, message = result.Error.Message }),
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return NoContent();
     }
 }
 

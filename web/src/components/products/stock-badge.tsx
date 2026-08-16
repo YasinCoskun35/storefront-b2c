@@ -5,23 +5,23 @@ export type StockStatus = "InStock" | "LowStock" | "OutOfStock" | "Discontinued"
 
 const stockConfig: Record<string, { label: string; className: string }> = {
   InStock: {
-    label: "In Stock",
+    label: "Stokta",
     className: "border-transparent bg-success text-success-foreground hover:bg-success/90",
   },
   LowStock: {
-    label: "Low Stock",
+    label: "Son Ürünler",
     className: "border-transparent bg-warning text-warning-foreground hover:bg-warning/90",
   },
   OutOfStock: {
-    label: "Out of Stock",
+    label: "Tükendi",
     className: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/90",
   },
   Discontinued: {
-    label: "Discontinued",
+    label: "Satıştan Kalktı",
     className: "border-transparent bg-muted text-muted-foreground",
   },
   PreOrder: {
-    label: "Pre-Order",
+    label: "Ön Sipariş",
     className: "border-transparent bg-accent text-accent-foreground hover:bg-accent/90",
   },
 };

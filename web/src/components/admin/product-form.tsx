@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { catalogApi, CreateProductDto, ProductDetail } from "@/lib/api";
+import { ENABLE_ORDERING } from "@/lib/config";
+import { getImageUrl } from "@/lib/utils";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { Loader2, Upload, X } from "lucide-react";
 
 interface ProductFormProps {
@@ -39,7 +41,9 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(initialData?.primaryImageUrl || "");
+  const [imagePreview, setImagePreview] = useState<string>(
+    getImageUrl(initialData?.primaryImageUrl ?? initialData?.images?.[0]?.url) || ""
+  );
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -47,11 +51,14 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
     queryFn: () => catalogApi.getCategories(),
   });
 
-  // Create product mutation
+  // Create or update product mutation
   const createProductMutation = useMutation({
-    mutationFn: (data: CreateProductDto) => catalogApi.createProduct(data),
+    mutationFn: (data: CreateProductDto) =>
+      productId
+        ? catalogApi.updateProduct(productId, data)
+        : catalogApi.createProduct(data),
     onSuccess: async (response) => {
-      // Upload image if provided
+      // Upload the new image if one was selected.
       if (imageFile) {
         try {
           await catalogApi.uploadProductImage(response.id, imageFile, true);
@@ -61,15 +68,19 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       }
 
       toast({
-        title: "Product created",
-        description: "The product has been created successfully.",
+        title: productId ? "Ürün güncellendi" : "Ürün oluşturuldu",
+        description: productId
+          ? "Ürün başarıyla güncellendi."
+          : "Ürün başarıyla oluşturuldu.",
       });
       router.push("/admin/products");
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to create product",
+        title: "Hata",
+        description:
+          error.response?.data?.message ||
+          (productId ? "Ürün güncellenemedi" : "Ürün oluşturulamadı"),
         variant: "destructive",
       });
     },
@@ -95,11 +106,11 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (!name || !sku || !price || !categoryId) {
+    // Price is only required when ordering/pricing is enabled.
+    if (!name || !sku || !categoryId || (ENABLE_ORDERING && !price)) {
       toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
+        title: "Doğrulama Hatası",
+        description: "Lütfen zorunlu alanları doldurun",
         variant: "destructive",
       });
       return;
@@ -110,10 +121,10 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       sku,
       description: description || undefined,
       shortDescription: shortDescription || undefined,
-      price: parseFloat(price),
+      price: price ? parseFloat(price) : undefined,
       compareAtPrice: compareAtPrice ? parseFloat(compareAtPrice) : undefined,
       stockStatus,
-      quantity: parseInt(quantity),
+      quantity: quantity ? parseInt(quantity) : 0,
       categoryId,
       weight: weight ? parseFloat(weight) : undefined,
       length: length ? parseFloat(length) : undefined,
@@ -133,55 +144,49 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       {/* Basic Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle>Temel Bilgiler</CardTitle>
           <CardDescription>
-            Essential product details
+            Ürünün temel bilgileri
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Product Name *</Label>
+              <Label htmlFor="name">Ürün Adı *</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., DeWalt 20V MAX Drill"
+                placeholder="örn. Bosch GSB 18V Matkap"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sku">SKU *</Label>
+              <Label htmlFor="sku">Stok Kodu *</Label>
               <Input
                 id="sku"
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                placeholder="e.g., DW-20V-DRILL"
+                placeholder="örn. BSH-18V-MTK"
                 required
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="shortDescription">Short Description</Label>
+            <Label htmlFor="shortDescription">Kısa Açıklama</Label>
             <Input
               id="shortDescription"
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
-              placeholder="Brief product summary"
+              placeholder="Kısa ürün özeti"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Full Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Detailed product description"
-              rows={5}
-            />
+            <Label htmlFor="description">Detaylı Açıklama</Label>
+            <RichTextEditor value={description} onChange={setDescription} />
           </div>
         </CardContent>
       </Card>
@@ -189,15 +194,19 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       {/* Pricing & Inventory */}
       <Card>
         <CardHeader>
-          <CardTitle>Pricing & Inventory</CardTitle>
+          <CardTitle>Fiyat ve Stok</CardTitle>
           <CardDescription>
-            Set pricing and manage stock
+            {ENABLE_ORDERING
+              ? "Fiyat belirleyin ve stoğu yönetin"
+              : "Sipariş kapalı olduğu için fiyat ve adet zorunlu değildir"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="price">Price *</Label>
+              <Label htmlFor="price">
+                Fiyat {ENABLE_ORDERING ? "*" : "(isteğe bağlı)"}
+              </Label>
               <Input
                 id="price"
                 type="number"
@@ -205,12 +214,12 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="0.00"
-                required
+                required={ENABLE_ORDERING}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="compareAtPrice">Compare at Price</Label>
+              <Label htmlFor="compareAtPrice">İndirim Öncesi Fiyat</Label>
               <Input
                 id="compareAtPrice"
                 type="number"
@@ -224,29 +233,33 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="stockStatus">Stock Status *</Label>
+              <Label htmlFor="stockStatus">
+                Stok Durumu {ENABLE_ORDERING ? "*" : ""}
+              </Label>
               <Select value={stockStatus} onValueChange={setStockStatus}>
                 <SelectTrigger id="stockStatus">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="InStock">In Stock</SelectItem>
-                  <SelectItem value="LowStock">Low Stock</SelectItem>
-                  <SelectItem value="OutOfStock">Out of Stock</SelectItem>
-                  <SelectItem value="Discontinued">Discontinued</SelectItem>
+                  <SelectItem value="InStock">Stokta</SelectItem>
+                  <SelectItem value="LowStock">Son Ürünler</SelectItem>
+                  <SelectItem value="OutOfStock">Tükendi</SelectItem>
+                  <SelectItem value="Discontinued">Satıştan Kalktı</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity *</Label>
+              <Label htmlFor="quantity">
+                Adet {ENABLE_ORDERING ? "*" : ""}
+              </Label>
               <Input
                 id="quantity"
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="0"
-                required
+                required={ENABLE_ORDERING}
               />
             </div>
           </div>
@@ -256,17 +269,17 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       {/* Organization */}
       <Card>
         <CardHeader>
-          <CardTitle>Organization</CardTitle>
+          <CardTitle>Düzenleme</CardTitle>
           <CardDescription>
-            Categorize and organize your product
+            Ürününüzü kategorilere ayırın
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
+            <Label htmlFor="category">Kategori *</Label>
             <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger id="category">
-                <SelectValue placeholder="Select a category" />
+                <SelectValue placeholder="Bir kategori seçin" />
               </SelectTrigger>
               <SelectContent>
                 {categories?.map((category) => (
@@ -288,7 +301,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="isActive" className="cursor-pointer">
-                Active
+                Aktif
               </Label>
             </div>
 
@@ -301,7 +314,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                 className="h-4 w-4 rounded border-gray-300"
               />
               <Label htmlFor="isFeatured" className="cursor-pointer">
-                Featured Product
+                Öne Çıkan Ürün
               </Label>
             </div>
           </div>
@@ -311,15 +324,15 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       {/* Shipping */}
       <Card>
         <CardHeader>
-          <CardTitle>Shipping Information</CardTitle>
+          <CardTitle>Kargo Bilgileri</CardTitle>
           <CardDescription>
-            Product dimensions and weight
+            Ürün boyutları ve ağırlığı
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-2">
-              <Label htmlFor="weight">Weight (kg)</Label>
+              <Label htmlFor="weight">Ağırlık (kg)</Label>
               <Input
                 id="weight"
                 type="number"
@@ -331,7 +344,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="length">Length (cm)</Label>
+              <Label htmlFor="length">Uzunluk (cm)</Label>
               <Input
                 id="length"
                 type="number"
@@ -343,7 +356,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="width">Width (cm)</Label>
+              <Label htmlFor="width">Genişlik (cm)</Label>
               <Input
                 id="width"
                 type="number"
@@ -355,7 +368,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="height">Height (cm)</Label>
+              <Label htmlFor="height">Yükseklik (cm)</Label>
               <Input
                 id="height"
                 type="number"
@@ -372,9 +385,9 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       {/* Product Image */}
       <Card>
         <CardHeader>
-          <CardTitle>Product Image</CardTitle>
+          <CardTitle>Ürün Görseli</CardTitle>
           <CardDescription>
-            Upload a primary product image
+            Ana ürün görselini yükleyin
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -382,7 +395,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
             <div className="relative inline-block">
               <img
                 src={imagePreview}
-                alt="Product preview"
+                alt="Ürün önizleme"
                 className="h-48 w-48 rounded-lg border object-cover"
               />
               <Button
@@ -404,10 +417,10 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
                   <p className="mb-2 text-sm text-muted-foreground">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
+                    <span className="font-semibold">Yüklemek için tıklayın</span> veya sürükleyip bırakın
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    PNG, JPG or WEBP (MAX. 5MB)
+                    PNG, JPG veya WEBP (EN FAZLA 5MB)
                   </p>
                 </div>
                 <input
@@ -427,14 +440,14 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       <div className="flex gap-4">
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {productId ? "Update Product" : "Create Product"}
+          {productId ? "Ürünü Güncelle" : "Ürün Oluştur"}
         </Button>
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push("/admin/products")}
         >
-          Cancel
+          İptal
         </Button>
       </div>
     </form>

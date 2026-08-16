@@ -23,22 +23,22 @@ function CheckoutSuccessContent() {
       <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
         <CheckCircle2 className="h-11 w-11 text-success" strokeWidth={1.5} />
       </div>
-      <h1 className="mt-6 font-display text-3xl font-bold">Order Received!</h1>
+      <h1 className="mt-6 font-display text-3xl font-bold">Siparişiniz Alındı!</h1>
       <p className="mt-3 text-muted-foreground">
-        Thank you for your order. We&apos;ve received it and will contact you shortly to
-        confirm the details and arrange payment and delivery.
+        Siparişiniz için teşekkürler. Siparişinizi aldık; detayları onaylamak,
+        ödeme ve teslimatı ayarlamak için kısa süre içinde sizinle iletişime geçeceğiz.
       </p>
       {orderId && (
         <p className="mt-3 rounded-lg border bg-muted/50 px-4 py-2 font-mono text-sm">
-          Order ID: {orderId}
+          Sipariş No: {orderId}
         </p>
       )}
       <p className="mt-4 text-sm text-muted-foreground">
-        Please keep your Order ID for reference.
+        Lütfen sipariş numaranızı saklayın.
       </p>
       <div className="mt-8 flex justify-center gap-4">
         <Link href="/products">
-          <Button size="lg">Continue Shopping</Button>
+          <Button size="lg">Alışverişe Devam Et</Button>
         </Link>
       </div>
     </div>

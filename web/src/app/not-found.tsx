@@ -12,18 +12,18 @@ export default function NotFound() {
         <p className="font-display text-sm font-semibold uppercase tracking-wide text-primary">
           404
         </p>
-        <h1 className="mt-2 font-display text-3xl font-bold">Page not found</h1>
+        <h1 className="mt-2 font-display text-3xl font-bold">Sayfa bulunamadı</h1>
         <p className="mt-3 max-w-sm text-muted-foreground">
-          The page you're looking for doesn't exist or may have been moved.
+          Aradığınız sayfa mevcut değil veya taşınmış olabilir.
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Link href="/">
-          <Button size="lg">Back to Home</Button>
+          <Button size="lg">Ana Sayfaya Dön</Button>
         </Link>
         <Link href="/products">
           <Button size="lg" variant="outline">
-            Browse Products
+            Ürünleri İncele
           </Button>
         </Link>
       </div>

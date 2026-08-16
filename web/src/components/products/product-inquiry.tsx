@@ -15,9 +15,9 @@ interface ProductInquiryProps {
  */
 export function ProductInquiry({ productName, stockStatus, whatsAppNumber }: ProductInquiryProps) {
   const isUnavailable = stockStatus === "OutOfStock" || stockStatus === "Discontinued";
-  const message = `Hi! I'm interested in "${productName}". Could you share more details${
-    isUnavailable ? " and availability" : ""
-  }?`;
+  const message = `Merhaba! "${productName}" ürünüyle ilgileniyorum. Detayları${
+    isUnavailable ? " ve stok durumunu" : ""
+  } paylaşabilir misiniz?`;
   const waLink = buildWhatsAppLink(whatsAppNumber, message);
 
   return (
@@ -26,16 +26,16 @@ export function ProductInquiry({ productName, stockStatus, whatsAppNumber }: Pro
         <Button asChild size="lg" className="w-full bg-[#25D366] text-white hover:bg-[#1ebe5d]">
           <a href={waLink} target="_blank" rel="noopener noreferrer">
             <WhatsAppIcon className="mr-2 h-5 w-5" />
-            Ask about this product
+            Bu ürünü sor
           </a>
         </Button>
       ) : (
         <Button asChild size="lg" className="w-full">
-          <Link href="/contact">Contact us about this product</Link>
+          <Link href="/contact">Bu ürün için bize ulaşın</Link>
         </Button>
       )}
       <p className="text-center text-xs text-muted-foreground">
-        Message us to check availability, pricing, and delivery.
+        Stok durumu, fiyat ve teslimat için bize yazın.
       </p>
     </div>
   );

@@ -22,8 +22,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Storefront - Quality Hardware & Tools",
-  description: "Your trusted hardware store for quality tools and equipment.",
+  title: "Harun Yapı Market - Kaliteli Hırdavat ve Yapı Malzemeleri",
+  description: "Kaliteli el aletleri, hırdavat ve yapı malzemeleri için güvenilir adresiniz.",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="tr" className={`${inter.variable} ${poppins.variable}`}>
       <body className="font-sans antialiased">
         <AuthProvider>
           <QueryProvider>

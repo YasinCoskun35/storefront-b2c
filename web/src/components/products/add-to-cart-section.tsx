@@ -42,14 +42,14 @@ export function AddToCartSection({ product }: AddToCartSectionProps) {
       });
       setAdded(true);
       notifyCartUpdated();
-      toast.success(`Added ${quantity} to cart`, {
+      toast.success(`${quantity} adet sepete eklendi`, {
         action: {
-          label: "View Cart",
+          label: "Sepete Git",
           onClick: () => (window.location.href = "/cart"),
         },
       });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to add to cart");
+      toast.error(err.response?.data?.message || "Ürün sepete eklenemedi");
     } finally {
       setAdding(false);
     }
@@ -59,7 +59,7 @@ export function AddToCartSection({ product }: AddToCartSectionProps) {
     <div className="flex flex-col gap-3">
       {!isOutOfStock && (
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium">Quantity</span>
+          <span className="text-sm font-medium">Adet</span>
           <div className="flex items-center rounded-md border">
             <Button
               type="button"
@@ -93,13 +93,13 @@ export function AddToCartSection({ product }: AddToCartSectionProps) {
         onClick={handleAddToCart}
       >
         <ShoppingCart className="mr-2 h-5 w-5" />
-        {isOutOfStock ? "Out of Stock" : adding ? "Adding..." : "Add to Cart"}
+        {isOutOfStock ? "Tükendi" : adding ? "Ekleniyor..." : "Sepete Ekle"}
       </Button>
 
       {added && (
         <Link href="/cart">
           <Button size="lg" variant="outline" className="w-full">
-            View Cart
+            Sepete Git
           </Button>
         </Link>
       )}

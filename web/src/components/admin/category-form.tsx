@@ -30,10 +30,10 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
   const [displayOrder, setDisplayOrder] = useState(initialData?.displayOrder?.toString() || "0");
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
 
-  // Fetch categories for parent dropdown
+  // Fetch categories for parent dropdown (all levels, including inactive)
   const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => catalogApi.getCategories(),
+    queryKey: ["categories", "all"],
+    queryFn: () => catalogApi.getAllCategories({ includeInactive: true }),
   });
 
   // Auto-generate slug from name
@@ -54,20 +54,27 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
     }
   };
 
-  // Create category mutation
+  // Create or update category mutation
   const createCategoryMutation = useMutation({
-    mutationFn: (data: CreateCategoryDto) => catalogApi.createCategory(data),
+    mutationFn: (data: CreateCategoryDto) =>
+      categoryId
+        ? catalogApi.updateCategory(categoryId, data)
+        : catalogApi.createCategory(data),
     onSuccess: () => {
       toast({
-        title: "Category created",
-        description: "The category has been created successfully.",
+        title: categoryId ? "Kategori güncellendi" : "Kategori oluşturuldu",
+        description: categoryId
+          ? "Kategori başarıyla güncellendi."
+          : "Kategori başarıyla oluşturuldu.",
       });
       router.push("/admin/categories");
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to create category",
+        title: "Hata",
+        description:
+          error.response?.data?.message ||
+          (categoryId ? "Kategori güncellenemedi" : "Kategori oluşturulamadı"),
         variant: "destructive",
       });
     },
@@ -79,8 +86,8 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
     // Validation
     if (!name) {
       toast({
-        title: "Validation Error",
-        description: "Please enter a category name",
+        title: "Doğrulama Hatası",
+        description: "Lütfen bir kategori adı girin",
         variant: "destructive",
       });
       return;
@@ -110,43 +117,43 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
       {/* Basic Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Category Information</CardTitle>
+          <CardTitle>Kategori Bilgileri</CardTitle>
           <CardDescription>
-            Basic category details
+            Temel kategori bilgileri
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Category Name *</Label>
+            <Label htmlFor="name">Kategori Adı *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="e.g., Power Tools"
+              placeholder="örn. Elektrikli El Aletleri"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="slug">URL Slug</Label>
+            <Label htmlFor="slug">URL Kısa Adı</Label>
             <Input
               id="slug"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              placeholder="e.g., power-tools"
+              placeholder="örn. elektrikli-el-aletleri"
             />
             <p className="text-xs text-muted-foreground">
-              Auto-generated from name if left empty. Only lowercase letters, numbers, and hyphens.
+              Boş bırakılırsa addan otomatik oluşturulur. Sadece küçük harf, rakam ve tire kullanın.
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Açıklama</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe this category"
+              placeholder="Bu kategoriyi tanımlayın"
               rows={4}
             />
           </div>
@@ -156,23 +163,23 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
       {/* Organization */}
       <Card>
         <CardHeader>
-          <CardTitle>Organization</CardTitle>
+          <CardTitle>Düzenleme</CardTitle>
           <CardDescription>
-            Categorize and organize
+            Sıralama ve düzen
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="parent">Parent Category</Label>
+            <Label htmlFor="parent">Üst Kategori</Label>
             <Select
               value={parentId || "none"}
               onValueChange={(v) => setParentId(v === "none" ? "" : v)}
             >
               <SelectTrigger id="parent">
-                <SelectValue placeholder="None (Top Level)" />
+                <SelectValue placeholder="Yok (Ana Seviye)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None (Top Level)</SelectItem>
+                <SelectItem value="none">Yok (Ana Seviye)</SelectItem>
                 {availableParentCategories?.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
@@ -181,12 +188,12 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Select a parent category to create a subcategory
+              Alt kategori oluşturmak için bir üst kategori seçin
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="displayOrder">Display Order</Label>
+            <Label htmlFor="displayOrder">Görüntülenme Sırası</Label>
             <Input
               id="displayOrder"
               type="number"
@@ -195,7 +202,7 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
               placeholder="0"
             />
             <p className="text-xs text-muted-foreground">
-              Lower numbers appear first (0 = first)
+              Küçük sayılar önce gösterilir (0 = ilk)
             </p>
           </div>
 
@@ -208,7 +215,7 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
               className="h-4 w-4 rounded border-gray-300"
             />
             <Label htmlFor="isActive" className="cursor-pointer">
-              Active (visible to customers)
+              Aktif (müşterilere görünür)
             </Label>
           </div>
         </CardContent>
@@ -218,14 +225,14 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
       <div className="flex gap-4">
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {categoryId ? "Update Category" : "Create Category"}
+          {categoryId ? "Kategoriyi Güncelle" : "Kategori Oluştur"}
         </Button>
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push("/admin/categories")}
         >
-          Cancel
+          İptal
         </Button>
       </div>
     </form>
