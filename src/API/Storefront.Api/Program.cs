@@ -23,7 +23,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:3001")
+        policy.WithOrigins(
+                  "http://localhost:3000",
+                  "http://localhost:3001",
+                  "https://harunyapimarket.com",
+                  "https://www.harunyapimarket.com"
+              )
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

@@ -195,3 +195,7 @@ IMPLEMENTATION_*.md
 BUNDLE_AND_*.md
 READY_TO_USE.md
 SETUP_COMPLETE.md
+
+
+# Locally/server-generated TLS material — never commit private keys
+docker/nginx/certs/
