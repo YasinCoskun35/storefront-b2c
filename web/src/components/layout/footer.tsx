@@ -39,11 +39,13 @@ export async function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-primary" />
-                <span>+90 555 000 0000</span>
+                <a href="tel:+905398282062" className="hover:text-primary">
+                  0539 828 20 62
+                </a>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                <span>İstanbul, Türkiye</span>
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <span>Seyhan, Aydın Hatboyu Cd. No:470 D:A, 35380 Buca/İzmir</span>
               </li>
             </ul>
           </div>

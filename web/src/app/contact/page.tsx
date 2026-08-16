@@ -1,4 +1,7 @@
 import { Mail, MapPin, Phone } from "lucide-react";
+import { LocationMap } from "@/components/contact/location-map";
+
+const STORE_ADDRESS = "Seyhan, Aydın Hatboyu Cd. No:470 D:A, 35380 Buca/İzmir";
 
 const CONTACT_METHODS = [
   {
@@ -9,12 +12,12 @@ const CONTACT_METHODS = [
   {
     icon: Phone,
     title: "Telefon",
-    lines: ["+90 555 000 0000", "Hafta içi: 09:00 - 18:00"],
+    lines: ["0539 828 20 62", "Hafta içi: 09:00 - 18:00"],
   },
   {
     icon: MapPin,
     title: "Adres",
-    lines: ["İstanbul, Türkiye"],
+    lines: [STORE_ADDRESS],
   },
 ];
 
@@ -48,6 +51,13 @@ export default function ContactPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-10">
+          <h2 className="mb-4 text-center font-display text-xl font-semibold">
+            Bizi Ziyaret Edin
+          </h2>
+          <LocationMap address={STORE_ADDRESS} />
         </div>
 
         <div className="mt-12 rounded-xl border bg-muted/30 p-6 text-center">
