@@ -199,3 +199,4 @@ SETUP_COMPLETE.md
 
 # Locally/server-generated TLS material — never commit private keys
 docker/nginx/certs/
+src/src.sln
