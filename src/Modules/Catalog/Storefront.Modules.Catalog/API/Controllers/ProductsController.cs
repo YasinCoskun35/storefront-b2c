@@ -98,11 +98,30 @@ public sealed class ProductsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(
         string id,
-        [FromBody] UpdateProductCommand command,
+        [FromBody] UpdateProductRequest request,
         CancellationToken cancellationToken)
     {
-        // The route id is authoritative over the body.
-        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
+        // The route id is authoritative; the body never needs to carry it.
+        var command = new UpdateProductCommand(
+            id,
+            request.Name,
+            request.SKU,
+            request.Description,
+            request.ShortDescription,
+            request.Price,
+            request.CompareAtPrice,
+            request.StockStatus,
+            request.Quantity,
+            request.CategoryId,
+            request.BrandId,
+            request.Weight,
+            request.Length,
+            request.Width,
+            request.Height,
+            request.IsActive,
+            request.IsFeatured);
+
+        var result = await _mediator.Send(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -308,4 +327,23 @@ public sealed record AddComponentRequest(
 );
 
 public sealed record ReorderImagesRequest(List<string> ImageIds);
+
+public sealed record UpdateProductRequest(
+    string Name,
+    string SKU,
+    string? Description,
+    string? ShortDescription,
+    decimal? Price,
+    decimal? CompareAtPrice,
+    Storefront.Modules.Catalog.Core.Domain.Enums.StockStatus StockStatus,
+    int Quantity,
+    string CategoryId,
+    string? BrandId,
+    decimal? Weight,
+    decimal? Length,
+    decimal? Width,
+    decimal? Height,
+    bool IsActive = true,
+    bool IsFeatured = false
+);
 

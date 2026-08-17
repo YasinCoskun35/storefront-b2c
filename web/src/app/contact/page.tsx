@@ -2,6 +2,10 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { LocationMap } from "@/components/contact/location-map";
 
 const STORE_ADDRESS = "Seyhan, Aydın Hatboyu Cd. No:470 D:A, 35380 Buca/İzmir";
+// Exact coordinates from the store's Google Maps listing
+// (https://maps.app.goo.gl/bZ4WwhNKZTGoU4yd6) so the embed pins the real
+// storefront instead of guessing from the address text.
+const STORE_MAP_QUERY = "38.375269,27.143874";
 
 const CONTACT_METHODS = [
   {
@@ -57,7 +61,7 @@ export default function ContactPage() {
           <h2 className="mb-4 text-center font-display text-xl font-semibold">
             Bizi Ziyaret Edin
           </h2>
-          <LocationMap address={STORE_ADDRESS} />
+          <LocationMap address={STORE_ADDRESS} query={STORE_MAP_QUERY} />
         </div>
 
         <div className="mt-12 rounded-xl border bg-muted/30 p-6 text-center">

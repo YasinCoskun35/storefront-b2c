@@ -14,7 +14,7 @@ import { catalogApi, CreateProductDto, ProductDetail, ProductImage as ProductIma
 import { ENABLE_ORDERING } from "@/lib/config";
 import { getImageUrl } from "@/lib/utils";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
-import { ArrowLeft, ArrowRight, Loader2, Star, Trash2, Upload, X } from "lucide-react";
+import { Loader2, Star, Trash2, Upload, X } from "lucide-react";
 
 interface ProductFormProps {
   productId?: string;
@@ -71,6 +71,8 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const skuRef = useRef<HTMLInputElement>(null);
@@ -216,19 +218,19 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
     }
   };
 
-  const handleMoveExistingImage = async (index: number, dir: -1 | 1) => {
-    if (!productId) return;
-    const target = index + dir;
-    if (target < 0 || target >= existingImages.length) return;
+  const handleReorderExistingImages = async (fromIndex: number, toIndex: number) => {
+    if (!productId || fromIndex === toIndex) return;
 
+    const previous = existingImages;
     const reordered = [...existingImages];
-    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
     setExistingImages(reordered);
 
     try {
       await catalogApi.reorderProductImages(productId, reordered.map((img) => img.id));
     } catch (error: any) {
-      setExistingImages(existingImages);
+      setExistingImages(previous);
       toast({
         title: "Hata",
         description: error.response?.data?.message || "Fotoğraflar yeniden sıralanamadı",
@@ -570,18 +572,45 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
         <CardHeader>
           <CardTitle>Ürün Görselleri</CardTitle>
           <CardDescription>
-            Birden fazla fotoğraf ekleyebilirsiniz. Yıldıza tıklayarak birincil fotoğrafı, ok
-            butonlarıyla sıralamayı belirleyin.
+            Birden fazla fotoğraf ekleyebilirsiniz. Yıldıza tıklayarak birincil fotoğrafı
+            belirleyin, sıralamak için fotoğrafları sürükleyip bırakın.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {(existingImages.length > 0 || pendingImages.length > 0) && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
               {existingImages.map((img, index) => (
-                <div key={img.id} className="relative">
+                <div
+                  key={img.id}
+                  draggable
+                  onDragStart={() => setDraggedImageIndex(index)}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (draggedImageIndex !== null && draggedImageIndex !== index) {
+                      setDragOverImageIndex(index);
+                    }
+                  }}
+                  onDragLeave={() => setDragOverImageIndex((cur) => (cur === index ? null : cur))}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (draggedImageIndex !== null) {
+                      handleReorderExistingImages(draggedImageIndex, index);
+                    }
+                    setDraggedImageIndex(null);
+                    setDragOverImageIndex(null);
+                  }}
+                  onDragEnd={() => {
+                    setDraggedImageIndex(null);
+                    setDragOverImageIndex(null);
+                  }}
+                  className={`relative cursor-grab active:cursor-grabbing ${
+                    draggedImageIndex === index ? "opacity-40" : ""
+                  } ${dragOverImageIndex === index ? "ring-2 ring-primary ring-offset-2" : ""}`}
+                >
                   <img
                     src={getImageUrl(img.url) || ""}
                     alt="Ürün görseli"
+                    draggable={false}
                     className={`h-32 w-full rounded-lg border-2 object-cover ${
                       img.isPrimary ? "border-primary" : "border-transparent"
                     }`}
@@ -613,30 +642,6 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                       onClick={() => handleDeleteExistingImage(img.id)}
                     >
                       <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <div className="absolute bottom-1 left-1 flex gap-1">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      className="h-6 w-6"
-                      title="Sola taşı"
-                      disabled={index === 0}
-                      onClick={() => handleMoveExistingImage(index, -1)}
-                    >
-                      <ArrowLeft className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="icon"
-                      className="h-6 w-6"
-                      title="Sağa taşı"
-                      disabled={index === existingImages.length - 1}
-                      onClick={() => handleMoveExistingImage(index, 1)}
-                    >
-                      <ArrowRight className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
