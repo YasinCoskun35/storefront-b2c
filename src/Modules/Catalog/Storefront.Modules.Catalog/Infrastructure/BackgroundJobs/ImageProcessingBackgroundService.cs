@@ -68,6 +68,16 @@ public sealed class ImageProcessingBackgroundService : BackgroundService
         var productUploadDir = Path.Combine("uploads", "products", message.ProductId);
         Directory.CreateDirectory(productUploadDir);
 
+        // Every variant of this photo shares one DisplayOrder so the gallery
+        // can sort/reorder by whole photo rather than by variant type.
+        using var scope = _serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        var maxDisplayOrder = await dbContext.ProductImages
+            .Where(i => i.ProductId == message.ProductId)
+            .Select(i => (int?)i.DisplayOrder)
+            .MaxAsync(cancellationToken) ?? -1;
+        var displayOrder = maxDisplayOrder + 1;
+
         var imageVariants = new List<(ImageType Type, int Size, string Path)>
         {
             (ImageType.Thumbnail, 200, Path.Combine(productUploadDir, $"thumbnail_{Guid.NewGuid()}.webp")),
@@ -95,7 +105,7 @@ public sealed class ImageProcessingBackgroundService : BackgroundService
                 Type = ImageType.Original,
                 GroupId = message.GroupId,
                 IsPrimary = message.IsPrimary && createdImages.Count == 0,
-                DisplayOrder = 0,
+                DisplayOrder = displayOrder,
                 FileSizeBytes = originalFileInfo.Length,
                 Width = originalWidth,
                 Height = originalHeight,
@@ -125,7 +135,7 @@ public sealed class ImageProcessingBackgroundService : BackgroundService
                         Type = type,
                         GroupId = message.GroupId,
                         IsPrimary = false,
-                        DisplayOrder = (int)type,
+                        DisplayOrder = displayOrder,
                         FileSizeBytes = fileInfo.Length,
                         Width = resizedImage.Width,
                         Height = resizedImage.Height,
@@ -146,10 +156,7 @@ public sealed class ImageProcessingBackgroundService : BackgroundService
             }
         }
 
-        // Save to database
-        using var scope = _serviceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-
+        // Save to database (reusing the scope/context opened above)
         await dbContext.ProductImages.AddRangeAsync(createdImages, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
 

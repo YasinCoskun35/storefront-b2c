@@ -117,7 +117,7 @@ export async function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-secondary-foreground/10 pt-8 text-sm text-secondary-foreground/50 sm:flex-row">
           <p>&copy; {new Date().getFullYear()} Harun Yapı Market. Tüm hakları saklıdır.</p>
-          <p>Güvenli ödeme altyapısı: iyzico</p>
+          {/* <p>Güvenli ödeme altyapısı: iyzico</p> */}
         </div>
       </div>
     </footer>

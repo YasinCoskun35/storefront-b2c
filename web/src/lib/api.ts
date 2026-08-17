@@ -296,6 +296,10 @@ export const catalogApi = {
     await api.put(`/api/catalog/products/${productId}/images/${imageId}/primary`);
   },
 
+  reorderProductImages: async (productId: string, imageIds: string[]): Promise<void> => {
+    await api.put(`/api/catalog/products/${productId}/images/reorder`, { imageIds });
+  },
+
   getCategories: async (parentId?: string): Promise<Category[]> => {
     const response = await api.get("/api/catalog/categories", {
       params: { parentId },

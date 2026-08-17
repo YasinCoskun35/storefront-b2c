@@ -5,6 +5,11 @@ import { ProductCard } from "@/components/products/product-card";
 import { HeroSlider } from "@/components/home/hero-slider";
 import { catalogApi, settingsApi } from "@/lib/api";
 
+// Admin-managed content (slider, featured products) changes without a
+// redeploy, so re-render this page in the background at most once a minute
+// instead of serving the build-time static HTML forever.
+export const revalidate = 60;
+
 const VALUE_PROPS = [
   {
     icon: Truck,

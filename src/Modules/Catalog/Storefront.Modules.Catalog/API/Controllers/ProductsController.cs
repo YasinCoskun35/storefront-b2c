@@ -202,6 +202,27 @@ public sealed class ProductsController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id}/images/reorder")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ReorderImages(
+        string id,
+        [FromBody] ReorderImagesRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new ReorderProductImagesCommand(id, request.ImageIds), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return NoContent();
+    }
+
     // Bundle-specific endpoints
     
     [HttpGet("{id}/bundle")]
@@ -285,4 +306,6 @@ public sealed record AddComponentRequest(
     bool IsOptional = false,
     int DisplayOrder = 0
 );
+
+public sealed record ReorderImagesRequest(List<string> ImageIds);
 

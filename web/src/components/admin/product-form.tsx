@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { catalogApi, CreateProductDto, ProductDetail, ProductImage as ProductImageDto } from "@/lib/api";
 import { ENABLE_ORDERING } from "@/lib/config";
 import { getImageUrl } from "@/lib/utils";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
-import { Loader2, Star, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Star, Trash2, Upload, X } from "lucide-react";
 
 interface ProductFormProps {
   productId?: string;
@@ -68,6 +69,8 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const skuRef = useRef<HTMLInputElement>(null);
@@ -172,20 +175,28 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
     }
   };
 
-  const handleDeleteExistingImage = async (imageId: string) => {
+  const handleDeleteExistingImage = (imageId: string) => {
     if (!productId) return;
-    if (!confirm("Bu fotoğrafı silmek istediğinize emin misiniz?")) return;
+    setImageToDelete(imageId);
+  };
 
+  const confirmDeleteImage = async () => {
+    if (!productId || !imageToDelete) return;
+
+    setIsDeletingImage(true);
     try {
-      await catalogApi.deleteProductImage(productId, imageId);
+      await catalogApi.deleteProductImage(productId, imageToDelete);
       await refreshImages();
       toast({ title: "Fotoğraf silindi" });
+      setImageToDelete(null);
     } catch (error: any) {
       toast({
         title: "Hata",
         description: error.response?.data?.message || "Fotoğraf silinemedi",
         variant: "destructive",
       });
+    } finally {
+      setIsDeletingImage(false);
     }
   };
 
@@ -200,6 +211,27 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
       toast({
         title: "Hata",
         description: error.response?.data?.message || "Birincil fotoğraf ayarlanamadı",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleMoveExistingImage = async (index: number, dir: -1 | 1) => {
+    if (!productId) return;
+    const target = index + dir;
+    if (target < 0 || target >= existingImages.length) return;
+
+    const reordered = [...existingImages];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    setExistingImages(reordered);
+
+    try {
+      await catalogApi.reorderProductImages(productId, reordered.map((img) => img.id));
+    } catch (error: any) {
+      setExistingImages(existingImages);
+      toast({
+        title: "Hata",
+        description: error.response?.data?.message || "Fotoğraflar yeniden sıralanamadı",
         variant: "destructive",
       });
     }
@@ -260,6 +292,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
   const isLoading = createProductMutation.isPending;
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
       <Card>
@@ -537,13 +570,14 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
         <CardHeader>
           <CardTitle>Ürün Görselleri</CardTitle>
           <CardDescription>
-            Birden fazla fotoğraf ekleyebilirsiniz. Yıldıza tıklayarak birincil fotoğrafı belirleyin.
+            Birden fazla fotoğraf ekleyebilirsiniz. Yıldıza tıklayarak birincil fotoğrafı, ok
+            butonlarıyla sıralamayı belirleyin.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {(existingImages.length > 0 || pendingImages.length > 0) && (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-              {existingImages.map((img) => (
+              {existingImages.map((img, index) => (
                 <div key={img.id} className="relative">
                   <img
                     src={getImageUrl(img.url) || ""}
@@ -579,6 +613,30 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                       onClick={() => handleDeleteExistingImage(img.id)}
                     >
                       <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="absolute bottom-1 left-1 flex gap-1">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-6 w-6"
+                      title="Sola taşı"
+                      disabled={index === 0}
+                      onClick={() => handleMoveExistingImage(index, -1)}
+                    >
+                      <ArrowLeft className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      className="h-6 w-6"
+                      title="Sağa taşı"
+                      disabled={index === existingImages.length - 1}
+                      onClick={() => handleMoveExistingImage(index, 1)}
+                    >
+                      <ArrowRight className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -662,6 +720,18 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
         </Button>
       </div>
     </form>
+
+    <ConfirmDialog
+      open={imageToDelete !== null}
+      onOpenChange={(open) => !open && setImageToDelete(null)}
+      title="Fotoğrafı sil"
+      description="Bu fotoğrafı silmek istediğinize emin misiniz? Bu işlem geri alınamaz."
+      confirmLabel="Sil"
+      variant="destructive"
+      isConfirming={isDeletingImage}
+      onConfirm={confirmDeleteImage}
+    />
+    </>
   );
 }
 
