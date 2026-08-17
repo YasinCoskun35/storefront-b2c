@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,8 @@ interface CategoryFormProps {
 export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  
+  const queryClient = useQueryClient();
+
   // Form state
   const [name, setName] = useState(initialData?.name || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -61,6 +62,7 @@ export function CategoryForm({ categoryId, initialData }: CategoryFormProps) {
         ? catalogApi.updateCategory(categoryId, data)
         : catalogApi.createCategory(data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
       toast({
         title: categoryId ? "Kategori güncellendi" : "Kategori oluşturuldu",
         description: categoryId

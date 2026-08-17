@@ -23,7 +23,7 @@ export async function Footer() {
           {/* Brand */}
           <div className="space-y-4 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 font-display">
-              <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={28} height={28} />
+              <Image src="/logo-icon.png" alt="Harun Yapı Market" width={28} height={28} />
               <span className="text-lg font-bold">Harun Yapı Market</span>
             </Link>
             <p className="max-w-xs text-sm text-secondary-foreground/70">

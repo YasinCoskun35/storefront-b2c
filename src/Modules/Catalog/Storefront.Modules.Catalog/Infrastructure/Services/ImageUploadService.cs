@@ -65,7 +65,8 @@ public sealed class ImageUploadService : IImageUploadService
             productId);
 
         // Queue the message for background processing
-        var message = new ImageUploadMessage(productId, incomingFilePath, isPrimary);
+        var groupId = Guid.NewGuid().ToString();
+        var message = new ImageUploadMessage(productId, incomingFilePath, isPrimary, groupId);
         await _channel.Writer.WriteAsync(message, cancellationToken);
 
         _logger.LogInformation(

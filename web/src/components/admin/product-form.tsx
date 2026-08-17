@@ -1,29 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { catalogApi, CreateProductDto, ProductDetail } from "@/lib/api";
+import { catalogApi, CreateProductDto, ProductDetail, ProductImage as ProductImageDto } from "@/lib/api";
 import { ENABLE_ORDERING } from "@/lib/config";
 import { getImageUrl } from "@/lib/utils";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Star, Trash2, Upload, X } from "lucide-react";
 
 interface ProductFormProps {
   productId?: string;
   initialData?: ProductDetail;
 }
 
+interface PendingImage {
+  file: File;
+  previewUrl: string;
+}
+
+// Each uploaded photo produces one row per variant (Original/Medium/Large/
+// Thumbnail); pick a single preferred variant type so the gallery shows one
+// tile per distinct photo. Mirrors product-gallery.tsx's selectGalleryImages.
+function groupProductImages(images: ProductImageDto[]): ProductImageDto[] {
+  const preferenceOrder = ["Large", "Original", "Medium", "Thumbnail"];
+
+  for (const type of preferenceOrder) {
+    const matches = images.filter((img) => img.type === type);
+    if (matches.length > 0) {
+      return [...matches].sort((a, b) => a.displayOrder - b.displayOrder);
+    }
+  }
+
+  return images;
+}
+
 export function ProductForm({ productId, initialData }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  
+  const queryClient = useQueryClient();
+
   // Form state
   const [name, setName] = useState(initialData?.name || "");
   const [sku, setSku] = useState(initialData?.sku || "");
@@ -40,10 +62,17 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
   const [height, setHeight] = useState(initialData?.height?.toString() || "");
   const [isActive, setIsActive] = useState(initialData?.isActive ?? true);
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(
-    getImageUrl(initialData?.primaryImageUrl ?? initialData?.images?.[0]?.url) || ""
+  const [existingImages, setExistingImages] = useState<ProductImageDto[]>(
+    groupProductImages(initialData?.images || [])
   );
+  const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const skuRef = useRef<HTMLInputElement>(null);
+  const priceRef = useRef<HTMLInputElement>(null);
+  const categoryTriggerRef = useRef<HTMLButtonElement>(null);
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -58,15 +87,16 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
         ? catalogApi.updateProduct(productId, data)
         : catalogApi.createProduct(data),
     onSuccess: async (response) => {
-      // Upload the new image if one was selected.
-      if (imageFile) {
+      // Upload any photos that were selected before the product existed.
+      for (let i = 0; i < pendingImages.length; i++) {
         try {
-          await catalogApi.uploadProductImage(response.id, imageFile, true);
+          await catalogApi.uploadProductImage(response.id, pendingImages[i].file, i === 0);
         } catch (error) {
           console.error("Failed to upload image:", error);
         }
       }
 
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
       toast({
         title: productId ? "Ürün güncellendi" : "Ürün oluşturuldu",
         description: productId
@@ -86,31 +116,121 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const refreshImages = async () => {
+    if (!productId) return;
+    const fresh = await catalogApi.getProductById(productId);
+    setExistingImages(groupProductImages(fresh.images));
+    queryClient.invalidateQueries({ queryKey: ["product", productId] });
+  };
+
+  const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setPendingImages((prev) => [
+      ...prev,
+      ...files.map((file) => ({ file, previewUrl: URL.createObjectURL(file) })),
+    ]);
+    e.target.value = "";
+  };
+
+  const handleRemovePendingImage = (index: number) => {
+    setPendingImages((prev) => {
+      URL.revokeObjectURL(prev[index].previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleUploadPendingImages = async () => {
+    if (!productId || pendingImages.length === 0) return;
+
+    setIsUploadingImages(true);
+    try {
+      for (let i = 0; i < pendingImages.length; i++) {
+        const isPrimary = existingImages.length === 0 && i === 0;
+        await catalogApi.uploadProductImage(productId, pendingImages[i].file, isPrimary);
+      }
+
+      pendingImages.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      setPendingImages([]);
+
+      toast({
+        title: "Fotoğraflar yükleniyor",
+        description: "İşlenip birkaç saniye içinde galeride görünecek.",
+      });
+
+      // Processing happens in the background, so give it a moment before refetching.
+      setTimeout(refreshImages, 2500);
+    } catch (error: any) {
+      toast({
+        title: "Hata",
+        description: error.response?.data?.message || "Fotoğraflar yüklenemedi",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImages(false);
     }
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview("");
+  const handleDeleteExistingImage = async (imageId: string) => {
+    if (!productId) return;
+    if (!confirm("Bu fotoğrafı silmek istediğinize emin misiniz?")) return;
+
+    try {
+      await catalogApi.deleteProductImage(productId, imageId);
+      await refreshImages();
+      toast({ title: "Fotoğraf silindi" });
+    } catch (error: any) {
+      toast({
+        title: "Hata",
+        description: error.response?.data?.message || "Fotoğraf silinemedi",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSetPrimaryImage = async (imageId: string) => {
+    if (!productId) return;
+
+    try {
+      await catalogApi.setPrimaryProductImage(productId, imageId);
+      await refreshImages();
+      toast({ title: "Birincil fotoğraf güncellendi" });
+    } catch (error: any) {
+      toast({
+        title: "Hata",
+        description: error.response?.data?.message || "Birincil fotoğraf ayarlanamadı",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Price is only required when ordering/pricing is enabled.
-    if (!name || !sku || !categoryId || (ENABLE_ORDERING && !price)) {
+    const newErrors: Record<string, string> = {};
+    if (!name) newErrors.name = "Ürün adı zorunludur";
+    if (!sku) newErrors.sku = "Stok kodu zorunludur";
+    if (!categoryId) newErrors.categoryId = "Kategori seçimi zorunludur";
+    if (ENABLE_ORDERING && !price) newErrors.price = "Fiyat zorunludur";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      if (newErrors.name) {
+        nameRef.current?.focus();
+      } else if (newErrors.sku) {
+        skuRef.current?.focus();
+      } else if (newErrors.categoryId) {
+        categoryTriggerRef.current?.focus();
+      } else if (newErrors.price) {
+        priceRef.current?.focus();
+      }
+
       toast({
         title: "Doğrulama Hatası",
-        description: "Lütfen zorunlu alanları doldurun",
+        description: "Lütfen kırmızı ile işaretlenen zorunlu alanları doldurun",
         variant: "destructive",
       });
       return;
@@ -155,22 +275,34 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
               <Label htmlFor="name">Ürün Adı *</Label>
               <Input
                 id="name"
+                ref={nameRef}
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                }}
                 placeholder="örn. Bosch GSB 18V Matkap"
-                required
+                className={errors.name ? "border-destructive focus-visible:ring-destructive" : undefined}
+                aria-invalid={!!errors.name}
               />
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="sku">Stok Kodu *</Label>
               <Input
                 id="sku"
+                ref={skuRef}
                 value={sku}
-                onChange={(e) => setSku(e.target.value)}
+                onChange={(e) => {
+                  setSku(e.target.value);
+                  if (errors.sku) setErrors((prev) => ({ ...prev, sku: "" }));
+                }}
                 placeholder="örn. BSH-18V-MTK"
-                required
+                className={errors.sku ? "border-destructive focus-visible:ring-destructive" : undefined}
+                aria-invalid={!!errors.sku}
               />
+              {errors.sku && <p className="text-xs text-destructive">{errors.sku}</p>}
             </div>
           </div>
 
@@ -209,13 +341,19 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
               </Label>
               <Input
                 id="price"
+                ref={priceRef}
                 type="number"
                 step="0.01"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => {
+                  setPrice(e.target.value);
+                  if (errors.price) setErrors((prev) => ({ ...prev, price: "" }));
+                }}
                 placeholder="0.00"
-                required={ENABLE_ORDERING}
+                className={errors.price ? "border-destructive focus-visible:ring-destructive" : undefined}
+                aria-invalid={!!errors.price}
               />
+              {errors.price && <p className="text-xs text-destructive">{errors.price}</p>}
             </div>
 
             <div className="space-y-2">
@@ -277,8 +415,19 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="category">Kategori *</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger id="category">
+            <Select
+              value={categoryId}
+              onValueChange={(v) => {
+                setCategoryId(v);
+                if (errors.categoryId) setErrors((prev) => ({ ...prev, categoryId: "" }));
+              }}
+            >
+              <SelectTrigger
+                id="category"
+                ref={categoryTriggerRef}
+                className={errors.categoryId ? "border-destructive focus:ring-destructive" : undefined}
+                aria-invalid={!!errors.categoryId}
+              >
                 <SelectValue placeholder="Bir kategori seçin" />
               </SelectTrigger>
               <SelectContent>
@@ -289,6 +438,7 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            {errors.categoryId && <p className="text-xs text-destructive">{errors.categoryId}</p>}
           </div>
 
           <div className="flex gap-4">
@@ -382,56 +532,117 @@ export function ProductForm({ productId, initialData }: ProductFormProps) {
         </CardContent>
       </Card>
 
-      {/* Product Image */}
+      {/* Product Images */}
       <Card>
         <CardHeader>
-          <CardTitle>Ürün Görseli</CardTitle>
+          <CardTitle>Ürün Görselleri</CardTitle>
           <CardDescription>
-            Ana ürün görselini yükleyin
+            Birden fazla fotoğraf ekleyebilirsiniz. Yıldıza tıklayarak birincil fotoğrafı belirleyin.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {imagePreview ? (
-            <div className="relative inline-block">
-              <img
-                src={imagePreview}
-                alt="Ürün önizleme"
-                className="h-48 w-48 rounded-lg border object-cover"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute -right-2 -top-2"
-                onClick={handleRemoveImage}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center w-full">
-              <label
-                htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
-                  <p className="mb-2 text-sm text-muted-foreground">
-                    <span className="font-semibold">Yüklemek için tıklayın</span> veya sürükleyip bırakın
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    PNG, JPG veya WEBP (EN FAZLA 5MB)
-                  </p>
+          {(existingImages.length > 0 || pendingImages.length > 0) && (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {existingImages.map((img) => (
+                <div key={img.id} className="relative">
+                  <img
+                    src={getImageUrl(img.url) || ""}
+                    alt="Ürün görseli"
+                    className={`h-32 w-full rounded-lg border-2 object-cover ${
+                      img.isPrimary ? "border-primary" : "border-transparent"
+                    }`}
+                  />
+                  {img.isPrimary && (
+                    <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
+                      Birincil
+                    </span>
+                  )}
+                  <div className="absolute right-1 top-1 flex gap-1">
+                    {!img.isPrimary && (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        className="h-6 w-6"
+                        title="Birincil yap"
+                        onClick={() => handleSetPrimaryImage(img.id)}
+                      >
+                        <Star className="h-3 w-3" />
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="h-6 w-6"
+                      title="Sil"
+                      onClick={() => handleDeleteExistingImage(img.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
-                <input
-                  id="image-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </label>
+              ))}
+
+              {pendingImages.map((img, index) => (
+                <div key={img.previewUrl} className="relative">
+                  <img
+                    src={img.previewUrl}
+                    alt="Yeni fotoğraf önizleme"
+                    className="h-32 w-full rounded-lg border-2 border-dashed border-muted-foreground/40 object-cover opacity-80"
+                  />
+                  <span className="absolute left-1 top-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    {productId ? "Bekliyor" : "Yeni"}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute right-1 top-1 h-6 w-6"
+                    title="Kaldır"
+                    onClick={() => handleRemovePendingImage(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
             </div>
+          )}
+
+          <div className="flex items-center justify-center w-full">
+            <label
+              htmlFor="image-upload"
+              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted hover:bg-muted/80"
+            >
+              <div className="flex flex-col items-center justify-center py-4">
+                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                <p className="mb-1 text-sm text-muted-foreground">
+                  <span className="font-semibold">Yüklemek için tıklayın</span> veya sürükleyip bırakın
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Birden fazla dosya seçebilirsiniz. PNG, JPG veya WEBP (EN FAZLA 5MB)
+                </p>
+              </div>
+              <input
+                id="image-upload"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                multiple
+                onChange={handleFilesSelected}
+              />
+            </label>
+          </div>
+
+          {productId && pendingImages.length > 0 && (
+            <Button
+              type="button"
+              onClick={handleUploadPendingImages}
+              disabled={isUploadingImages}
+            >
+              {isUploadingImages && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {pendingImages.length} Fotoğrafı Yükle
+            </Button>
           )}
         </CardContent>
       </Card>

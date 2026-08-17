@@ -1,24 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { catalogApi, Product } from "@/lib/api";
 import { DataTable } from "@/components/admin/data-table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatPrice, getImageUrl } from "@/lib/utils";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 
+const STOCK_STATUS_LABELS: Record<string, string> = {
+  InStock: "Stokta",
+  LowStock: "Son Ürünler",
+  OutOfStock: "Tükendi",
+  Discontinued: "Satıştan Kalktı",
+  PreOrder: "Ön Sipariş",
+};
+
 export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("all");
+  const [stockStatus, setStockStatus] = useState<string>("all");
+  const [isActive, setIsActive] = useState<string>("all");
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-products", page],
-    queryFn: () => catalogApi.searchProducts({ pageNumber: page, pageSize: 10 }),
+  // Debounce the free-text search so we don't fire a request per keystroke.
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearchTerm(searchInput.trim());
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
+  const { data: categories } = useQuery({
+    queryKey: ["categories", "all"],
+    queryFn: () => catalogApi.getAllCategories({ includeInactive: true }),
   });
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-products", page, searchTerm, categoryId, stockStatus, isActive],
+    queryFn: () =>
+      catalogApi.searchProducts({
+        pageNumber: page,
+        pageSize: 10,
+        searchTerm: searchTerm || undefined,
+        categoryId: categoryId === "all" ? undefined : categoryId,
+        stockStatus: stockStatus === "all" ? undefined : stockStatus,
+        isActive: isActive === "all" ? undefined : isActive === "active",
+      }),
+  });
+
+  const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
+    setter(value);
+    setPage(1);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => catalogApi.deleteProduct(id),
@@ -104,10 +146,6 @@ export default function AdminProductsPage() {
     },
   ];
 
-  if (isLoading) {
-    return <div>Yükleniyor...</div>;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -125,13 +163,72 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      <DataTable
-        columns={columns}
-        data={data?.items || []}
-        currentPage={page}
-        totalPages={data?.totalPages || 1}
-        onPageChange={setPage}
-      />
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative sm:w-64">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Ürün adı veya stok kodu ara..."
+            className="pl-9"
+          />
+        </div>
+
+        <Select value={categoryId} onValueChange={handleFilterChange(setCategoryId)}>
+          <SelectTrigger className="sm:w-48">
+            <SelectValue placeholder="Kategori" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tüm Kategoriler</SelectItem>
+            {categories?.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={stockStatus} onValueChange={handleFilterChange(setStockStatus)}>
+          <SelectTrigger className="sm:w-44">
+            <SelectValue placeholder="Stok Durumu" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tüm Stok Durumları</SelectItem>
+            {Object.entries(STOCK_STATUS_LABELS).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={isActive} onValueChange={handleFilterChange(setIsActive)}>
+          <SelectTrigger className="sm:w-36">
+            <SelectValue placeholder="Durum" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tümü</SelectItem>
+            <SelectItem value="active">Aktif</SelectItem>
+            <SelectItem value="inactive">Pasif</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <div>Yükleniyor...</div>
+      ) : data && data.items.length === 0 ? (
+        <p className="rounded-md border bg-card p-8 text-center text-sm text-muted-foreground">
+          Filtrelere uyan ürün bulunamadı.
+        </p>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={data?.items || []}
+          currentPage={page}
+          totalPages={data?.totalPages || 1}
+          onPageChange={setPage}
+        />
+      )}
     </div>
   );
 }

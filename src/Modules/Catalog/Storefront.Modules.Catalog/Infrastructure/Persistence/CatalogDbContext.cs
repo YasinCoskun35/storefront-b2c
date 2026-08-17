@@ -181,7 +181,8 @@ public class CatalogDbContext : DbContext
 
             entity.Property(i => i.Url).IsRequired().HasMaxLength(1000);
             entity.Property(i => i.AltText).HasMaxLength(200);
-            
+            entity.Property(i => i.GroupId).HasMaxLength(450);
+
             entity.Property(i => i.Type)
                 .HasConversion<string>()
                 .HasMaxLength(50);
@@ -190,6 +191,7 @@ public class CatalogDbContext : DbContext
             entity.HasIndex(i => i.ProductId);
             entity.HasIndex(i => new { i.ProductId, i.IsPrimary });
             entity.HasIndex(i => i.Type);
+            entity.HasIndex(i => i.GroupId);
         });
     }
     

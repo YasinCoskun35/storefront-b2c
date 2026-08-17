@@ -29,7 +29,17 @@ public static class DatabaseExtensions
                 // tables are created from its EF model so the schema always matches
                 // the code — no hand-written CREATE TABLE statements to drift.
                 await EnsureContextAsync(services.GetRequiredService<IdentityDbContext>(), "identity");
-                await EnsureContextAsync(services.GetRequiredService<CatalogDbContext>(), "catalog");
+
+                var catalogDb = services.GetRequiredService<CatalogDbContext>();
+                await EnsureContextAsync(catalogDb, "catalog");
+
+                // Backfills columns added to the EF model after the table already
+                // existed in production (EnsureCreatedAsync only creates tables once,
+                // it never alters an existing one).
+                await catalogDb.Database.ExecuteSqlRawAsync(@"
+                    ALTER TABLE catalog.""ProductImages"" ADD COLUMN IF NOT EXISTS ""GroupId"" varchar(450) NULL;
+                    CREATE INDEX IF NOT EXISTS ""IX_ProductImages_GroupId"" ON catalog.""ProductImages"" (""GroupId"");
+                ");
 
                 var contentDb = services.GetRequiredService<ContentDbContext>();
                 await EnsureContextAsync(contentDb, "content");

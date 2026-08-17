@@ -26,10 +26,13 @@ public sealed class ProductsController : ControllerBase
         [FromQuery] decimal? minPrice,
         [FromQuery] decimal? maxPrice,
         [FromQuery] bool? isActive,
+        [FromQuery] string? stockStatus,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        Enum.TryParse<Storefront.Modules.Catalog.Core.Domain.Enums.StockStatus>(stockStatus, ignoreCase: true, out var parsedStockStatus);
+
         var query = new SearchProductsQuery(
             searchTerm,
             categoryId,
@@ -37,6 +40,7 @@ public sealed class ProductsController : ControllerBase
             minPrice,
             maxPrice,
             isActive,
+            string.IsNullOrWhiteSpace(stockStatus) ? null : parsedStockStatus,
             pageNumber,
             pageSize);
 
@@ -161,7 +165,43 @@ public sealed class ProductsController : ControllerBase
             fileName = result.Value
         });
     }
-    
+
+    [HttpDelete("{id}/images/{imageId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteImage(string id, string imageId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new DeleteProductImageCommand(id, imageId), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return NoContent();
+    }
+
+    [HttpPut("{id}/images/{imageId}/primary")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> SetPrimaryImage(string id, string imageId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new SetPrimaryProductImageCommand(id, imageId), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Type switch
+            {
+                "NotFound" => NotFound(new { error = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(500, new { error = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
+        return NoContent();
+    }
+
     // Bundle-specific endpoints
     
     [HttpGet("{id}/bundle")]

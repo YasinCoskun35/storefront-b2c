@@ -62,7 +62,7 @@ export function Header() {
                   className="flex items-center gap-2 font-display text-lg font-bold"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={28} height={28} />
+                  <Image src="/logo-icon.png" alt="Harun Yapı Market" width={28} height={28} />
                   Harun Yapı Market
                 </Link>
               </SheetTitle>
@@ -115,7 +115,7 @@ export function Header() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 font-display text-foreground">
-          <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={32} height={32} priority />
+          <Image src="/logo-icon.png" alt="Harun Yapı Market" width={32} height={32} priority />
           <span className="hidden text-lg font-bold tracking-tight sm:inline">
             Harun Yapı Market
           </span>

@@ -47,7 +47,7 @@ export function AdminSidebar() {
     <div className="flex h-full w-64 flex-col border-r bg-muted/40">
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/admin/dashboard" className="flex items-center space-x-2">
-          <Image src="/logo-icon.svg" alt="Harun Yapı Market" width={28} height={28} />
+          <Image src="/logo-icon.png" alt="Harun Yapı Market" width={28} height={28} />
           <span className="text-lg font-bold">Yönetim</span>
         </Link>
       </div>

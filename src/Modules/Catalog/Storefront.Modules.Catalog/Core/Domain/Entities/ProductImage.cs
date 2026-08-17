@@ -8,6 +8,9 @@ public class ProductImage
     public required string ProductId { get; set; }
     public required string Url { get; set; }
     public ImageType Type { get; set; }
+    // Links the Original/Medium/Large/Thumbnail variants generated from the
+    // same uploaded photo, so they can be deleted/promoted together.
+    public string? GroupId { get; set; }
     public bool IsPrimary { get; set; }
     public int DisplayOrder { get; set; }
     public string? AltText { get; set; }

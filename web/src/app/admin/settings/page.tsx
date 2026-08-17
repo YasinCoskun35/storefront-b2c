@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, ArrowUp, ArrowDown, Upload } from "lucide-react";
 import { settingsApi, type SliderSlide, type StoreSettings } from "@/lib/api";
 import { getImageUrl } from "@/lib/utils";
+import { SlideLinkPicker } from "@/components/admin/slide-link-picker";
 
 const EMPTY_SETTINGS: StoreSettings = {
   storeName: "",
@@ -295,6 +296,7 @@ function SlideEditor({
               <Input value={slide.ctaLink ?? ""} onChange={(e) => onChange({ ctaLink: e.target.value })} placeholder="/products" />
             </Field>
           </div>
+          <SlideLinkPicker onSelect={(link) => onChange({ ctaLink: link })} />
         </div>
       </div>
     </div>

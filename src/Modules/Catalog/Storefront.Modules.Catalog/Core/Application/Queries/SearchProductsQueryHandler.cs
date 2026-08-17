@@ -70,6 +70,11 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
             query = query.Where(p => p.IsActive == request.IsActive.Value);
         }
 
+        if (request.StockStatus.HasValue)
+        {
+            query = query.Where(p => p.StockStatus == request.StockStatus.Value);
+        }
+
         // Get total count
         var totalCount = await query.CountAsync(cancellationToken);
 

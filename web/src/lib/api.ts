@@ -238,6 +238,7 @@ export const catalogApi = {
     minPrice?: number;
     maxPrice?: number;
     isActive?: boolean;
+    stockStatus?: string;
     pageNumber?: number;
     pageSize?: number;
   }): Promise<PagedResult<Product>> => {
@@ -285,6 +286,14 @@ export const catalogApi = {
       }
     );
     return response.data;
+  },
+
+  deleteProductImage: async (productId: string, imageId: string): Promise<void> => {
+    await api.delete(`/api/catalog/products/${productId}/images/${imageId}`);
+  },
+
+  setPrimaryProductImage: async (productId: string, imageId: string): Promise<void> => {
+    await api.put(`/api/catalog/products/${productId}/images/${imageId}/primary`);
   },
 
   getCategories: async (parentId?: string): Promise<Category[]> => {

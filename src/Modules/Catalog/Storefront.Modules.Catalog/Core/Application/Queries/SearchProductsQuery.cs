@@ -1,5 +1,6 @@
 using MediatR;
 using Storefront.Modules.Catalog.Core.Application.DTOs;
+using Storefront.Modules.Catalog.Core.Domain.Enums;
 using Storefront.SharedKernel;
 
 namespace Storefront.Modules.Catalog.Core.Application.Queries;
@@ -11,6 +12,7 @@ public sealed record SearchProductsQuery(
     decimal? MinPrice,
     decimal? MaxPrice,
     bool? IsActive,
+    StockStatus? StockStatus = null,
     int PageNumber = 1,
     int PageSize = 20
 ) : IRequest<Result<PagedResult<ProductDto>>>;

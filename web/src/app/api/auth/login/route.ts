@@ -4,7 +4,7 @@ import { authApi } from "@/lib/api";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, rememberMe = true } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -19,15 +19,19 @@ export async function POST(request: NextRequest) {
     // Create response with HttpOnly cookie
     const nextResponse = NextResponse.json(response);
 
-    // Set HttpOnly cookie for refresh token
+    // Set HttpOnly cookie for refresh token. "Remember me" controls whether it
+    // survives after the browser closes (persistent) or not (session cookie).
     if (response.refreshToken) {
-      nextResponse.cookies.set("refreshToken", response.refreshToken, {
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60, // 7 days
+        sameSite: "lax" as const,
         path: "/",
-      });
+        ...(rememberMe ? { maxAge: 7 * 24 * 60 * 60 } : {}), // 7 days if remembered
+      };
+
+      nextResponse.cookies.set("refreshToken", response.refreshToken, cookieOptions);
+      nextResponse.cookies.set("rememberMe", rememberMe ? "1" : "0", cookieOptions);
     }
 
     return nextResponse;
