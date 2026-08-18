@@ -20,27 +20,30 @@ export function HeroSlider({ slides }: HeroSliderProps) {
   const next = useCallback(() => goTo(index + 1), [goTo, index]);
   const prev = useCallback(() => goTo(index - 1), [goTo, index]);
 
-  // Auto-advance every 6s (pauses via key reset when the user navigates).
+  // Auto-advance every 6s; restarts from zero whenever the slide changes,
+  // including manual navigation via the arrows/dots.
   useEffect(() => {
     if (count <= 1) return;
     const timer = setInterval(() => setIndex((i) => (i + 1) % count), 6000);
     return () => clearInterval(timer);
-  }, [count]);
+  }, [count, index]);
 
   if (count === 0) return null;
 
   return (
     <section className="relative overflow-hidden border-b bg-secondary text-secondary-foreground">
-      <div className="relative aspect-[21/9] max-h-[520px] w-full sm:aspect-[3/1]">
+      <div className="relative aspect-[21/9] max-h-[520px] w-full overflow-hidden sm:aspect-[3/1]">
+        <div
+          className="flex h-full w-full transition-transform duration-700 ease-out"
+          style={{ transform: `translateX(-${index * 100}%)` }}
+        >
         {slides.map((slide, i) => {
           const src = getImageUrl(slide.imageUrl);
           const active = i === index;
           return (
             <div
               key={i}
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                active ? "opacity-100" : "pointer-events-none opacity-0"
-              }`}
+              className="relative h-full w-full flex-shrink-0"
               aria-hidden={!active}
             >
               {src && (
@@ -79,6 +82,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
             </div>
           );
         })}
+        </div>
       </div>
 
       {count > 1 && (

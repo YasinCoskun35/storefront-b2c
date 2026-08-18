@@ -51,9 +51,18 @@ Giriş yapınca soldaki menüden şunları görürsünüz:
      işareti kaldırın.
    - **Öne Çıkan Ürün** — işaretlerseniz ana sayfada öne çıkar.
    - **Kargo Bilgileri** (ağırlık/boyut) — biliyorsanız girin, zorunlu değildir.
-3. **Ürün Görseli** bölümünden bir fotoğraf yükleyin (PNG/JPG, en fazla 5 MB).
-   İyi ışıklı, sade arka planlı fotoğraflar daha profesyonel görünür.
+3. **Ürün Görselleri** bölümünden fotoğraf yükleyin — aynı anda **birden fazla
+   fotoğraf** seçebilirsiniz (PNG/JPG/WebP, her biri en fazla 5 MB). İyi
+   ışıklı, sade arka planlı fotoğraflar daha profesyonel görünür.
+   - Yüklenen fotoğraflar küçük kartlar halinde sıralanır. Bir fotoğrafın
+     **yıldız** simgesine tıklayarak onu **birincil** (kapak) fotoğraf yapın —
+     listede ve ürün sayfasında ilk görünen bu olur.
+   - Kartları sürükleyerek fotoğrafların sırasını değiştirebilirsiniz.
+   - **Çöp kutusu** simgesiyle istemediğiniz bir fotoğrafı silebilirsiniz.
 4. En altta **Ürün Oluştur** düğmesine tıklayın.
+
+> **Not:** Var olan bir ürünü düzenlerken yeni fotoğraf seçtiyseniz, kartların
+> üstündeki **"Fotoğrafları Yükle"** düğmesine basmadan fotoğraflar kaydedilmez.
 
 > **İpucu:** Fiyat verirken kuruş için nokta kullanın: `99.90`. Binlik ayıracı
 > koymayın (yani `1250` yazın, `1.250` değil).
@@ -104,7 +113,10 @@ Sipariş kapalı olduğu için müşteriler size **WhatsApp**'tan ulaşır.
   mesaj, örn. "Merhaba, bir ürün hakkında bilgi almak istiyorum."
 
 Numara doğruysa sitenin sağ alt köşesinde yeşil WhatsApp butonu belirir ve her
-ürün sayfasında "Bu ürünü sor" düğmesi çalışır.
+ürün sayfasında "Bu ürünü sor" düğmesi çalışır. Müşteri bu düğmeye bastığında
+açılan mesaja, ürünün adının yanı sıra **o ürünün sayfasına giden bağlantı da
+otomatik olarak eklenir** — böylece hangi üründen bahsettiğini tıklayıp hemen
+görebilirsiniz.
 
 ### 5.3 Ana Sayfa Slaytı
 Ana sayfanın en üstündeki büyük kayan görseller.
@@ -115,6 +127,11 @@ Ana sayfanın en üstündeki büyük kayan görseller.
    bağlantı `/products`) ekleyin.
 4. Yukarı/aşağı oklarla sırayı değiştirebilir, çöp kutusuyla silebilirsiniz.
 5. Hiç slayt eklemezseniz varsayılan tanıtım görseli kullanılır.
+
+Slaytlar birbirine soldan sağa **kayarak** geçer. Bir ziyaretçi ok
+düğmelerine veya alttaki noktalara basıp elle bir slayta geçerse, otomatik
+geçiş süresi sıfırdan başlar — yani elle gezinen ziyaretçinin önünde
+görsel hemen değişmez, yeniden birkaç saniye beklenir.
 
 **Slayt görseli için önerilen boyut:**
 - **1920 × 640 piksel** (3:1 oran), JPG veya WebP. Retina/keskin görüntü için
@@ -135,7 +152,15 @@ kullanabilirsiniz. Zorunlu değildir; boş kalabilir.
 
 ---
 
-## 7. Sık Sorulanlar
+## 7. Site Simgesi (Favicon)
+
+Tarayıcı sekmesinde ve yer imlerinde görünen küçük site simgesi artık
+mağazanın gerçek logosudur. Bu, kod tarafında ayarlandığı için panelden
+değiştirilmez; logo değişirse geliştiriciden güncellemesini istemeniz yeterli.
+
+---
+
+## 8. Sık Sorulanlar
 
 **Yaptığım değişiklik sitede görünmüyor.**
 Ayarlarda **Değişiklikleri Kaydet**'e bastığınızdan emin olun. Ardından siteyi
