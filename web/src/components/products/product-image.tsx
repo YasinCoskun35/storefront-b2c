@@ -9,9 +9,17 @@ interface ProductImageProps {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  fit?: "cover" | "contain";
 }
 
-export function ProductImage({ src, alt, className, sizes, priority }: ProductImageProps) {
+export function ProductImage({
+  src,
+  alt,
+  className,
+  sizes,
+  priority,
+  fit = "cover",
+}: ProductImageProps) {
   const resolved = getImageUrl(src);
 
   if (!resolved) {
@@ -34,7 +42,7 @@ export function ProductImage({ src, alt, className, sizes, priority }: ProductIm
       fill
       sizes={sizes}
       priority={priority}
-      className={cn("object-cover", className)}
+      className={cn(fit === "cover" ? "object-cover" : "object-contain", className)}
     />
   );
 }

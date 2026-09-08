@@ -38,7 +38,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   return (
     <div className="space-y-4">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
-        <ProductImage src={activeImage?.url} alt={productName} priority />
+        <ProductImage src={activeImage?.url} alt={productName} priority fit="contain" />
       </div>
 
       {gallery.length > 1 && (
