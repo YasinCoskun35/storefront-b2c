@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ProductImage } from "@/components/products/product-image";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import type { ProductImage as ProductImageDto } from "@/lib/api";
 
 interface ProductGalleryProps {
@@ -38,6 +38,13 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   return (
     <div className="space-y-4">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+        {activeImage?.url && (
+          <div
+            aria-hidden
+            className="absolute inset-0 scale-110 bg-cover bg-center blur-2xl"
+            style={{ backgroundImage: `url(${getImageUrl(activeImage.url)})` }}
+          />
+        )}
         <ProductImage src={activeImage?.url} alt={productName} priority fit="contain" />
       </div>
 
