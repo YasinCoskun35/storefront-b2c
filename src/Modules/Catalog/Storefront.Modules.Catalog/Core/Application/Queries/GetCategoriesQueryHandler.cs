@@ -55,7 +55,23 @@ public sealed class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQue
             ))
             .ToListAsync(cancellationToken);
 
-        return Result<IReadOnlyList<CategoryDto>>.Success(categories);
+        // ProductCount above only counts products placed directly in a category.
+        // Roll subcategory products up so a parent like "Mutfak Sistemleri",
+        // whose products all live in subcategories, doesn't show 0.
+        var tree = await _context.Categories
+            .Select(c => new { c.Id, c.ParentId, Direct = c.Products.Count(p => p.IsActive) })
+            .ToListAsync(cancellationToken);
+        var childrenOf = tree.Where(c => c.ParentId != null).ToLookup(c => c.ParentId!);
+        var directById = tree.ToDictionary(c => c.Id, c => c.Direct);
+
+        int Total(string id, HashSet<string> seen) =>
+            !seen.Add(id) ? 0 : directById.GetValueOrDefault(id) + childrenOf[id].Sum(c => Total(c.Id, seen));
+
+        var withTotals = categories
+            .Select(c => c with { ProductCount = Total(c.Id, new HashSet<string>()) })
+            .ToList();
+
+        return Result<IReadOnlyList<CategoryDto>>.Success(withTotals);
     }
 }
 

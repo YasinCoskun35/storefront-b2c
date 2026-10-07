@@ -47,7 +47,7 @@ export function ProductCard({
 
           {category && (
             <div className="absolute left-2 top-2">
-              <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
+              <Badge className="border-transparent bg-blue-600 text-white shadow-sm hover:bg-blue-600">
                 {category}
               </Badge>
             </div>

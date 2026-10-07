@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Package, ShieldCheck, Truck, Wrench } from "lucide-react";
+import { ArrowRight, MessageCircle, Package, Truck, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/products/product-card";
 import { HeroSlider } from "@/components/home/hero-slider";
@@ -17,9 +17,9 @@ const VALUE_PROPS = [
     description: "Kapınıza veya şantiyenize güvenilir teslimat.",
   },
   {
-    icon: ShieldCheck,
-    title: "Güvenli Ödeme",
-    description: "Ödemeler iyzico ile güvenli şekilde işlenir.",
+    icon: MessageCircle,
+    title: "WhatsApp'tan Hızlı Bilgi",
+    description: "Fiyat ve stok bilgisi için bize WhatsApp'tan yazın.",
   },
   {
     icon: Wrench,
@@ -85,7 +85,7 @@ export default async function HomePage() {
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-lg text-secondary-foreground/70">
               Ustalar ve kendin-yap meraklıları için profesyonel kalitede
-              ürünler; hızlı teslimat ve güvenli ödeme.
+              ürünler; hızlı teslimat ve birebir destek.
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/products">
