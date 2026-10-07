@@ -47,7 +47,9 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
         // Apply filters
         if (!string.IsNullOrWhiteSpace(request.CategoryId))
         {
-            query = query.Where(p => p.CategoryId == request.CategoryId);
+            // A parent category lists the products of all its subcategories too.
+            var categoryIds = await GetCategoryWithDescendantsAsync(request.CategoryId, cancellationToken);
+            query = query.Where(p => categoryIds.Contains(p.CategoryId));
         }
 
         if (!string.IsNullOrWhiteSpace(request.BrandId))
@@ -114,6 +116,25 @@ public sealed class SearchProductsQueryHandler : IRequestHandler<SearchProductsQ
         );
 
         return Result<PagedResult<ProductDto>>.Success(pagedResult);
+    }
+
+    private async Task<List<string>> GetCategoryWithDescendantsAsync(string categoryId, CancellationToken cancellationToken)
+    {
+        // The category tree is small, so walk it in memory rather than with a recursive CTE.
+        var parentLinks = await _context.Categories
+            .Where(c => c.ParentId != null)
+            .Select(c => new { c.Id, c.ParentId })
+            .ToListAsync(cancellationToken);
+
+        var result = new List<string> { categoryId };
+        for (var i = 0; i < result.Count; i++)
+        {
+            result.AddRange(parentLinks
+                .Where(c => c.ParentId == result[i] && !result.Contains(c.Id))
+                .Select(c => c.Id));
+        }
+
+        return result;
     }
 }
 

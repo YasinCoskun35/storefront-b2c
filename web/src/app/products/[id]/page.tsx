@@ -9,7 +9,7 @@ import { AddToCartSection } from "@/components/products/add-to-cart-section";
 import { ProductInquiry } from "@/components/products/product-inquiry";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { StockBadge } from "@/components/products/stock-badge";
-import { ENABLE_ORDERING } from "@/lib/config";
+import { ENABLE_ORDERING, SHOW_PRICES } from "@/lib/config";
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -113,7 +113,7 @@ export default async function ProductDetailPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
-            {product.price != null && (
+            {SHOW_PRICES && product.price != null && (
               <div className="flex items-baseline gap-3">
                 <span className="text-3xl font-bold">{formatPrice(product.price)}</span>
                 {product.compareAtPrice && product.compareAtPrice > product.price && (

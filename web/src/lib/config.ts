@@ -4,6 +4,10 @@
 // full shop later, set NEXT_PUBLIC_ENABLE_ORDERING=true in the web environment.
 export const ENABLE_ORDERING = process.env.NEXT_PUBLIC_ENABLE_ORDERING === "true";
 
+// Prices are hidden by default (customers ask via WhatsApp). Set
+// NEXT_PUBLIC_SHOW_PRICES=true to show them again.
+export const SHOW_PRICES = process.env.NEXT_PUBLIC_SHOW_PRICES === "true";
+
 /**
  * Build a wa.me link for a WhatsApp number (digits only, international format).
  * Returns null when no number is configured.

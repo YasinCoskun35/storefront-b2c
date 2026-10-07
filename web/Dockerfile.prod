@@ -22,8 +22,10 @@ ENV NODE_ENV=production
 # Pass the public API origin and whether ordering is enabled as build args.
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_ENABLE_ORDERING=false
+ARG NEXT_PUBLIC_SHOW_PRICES=false
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_ENABLE_ORDERING=$NEXT_PUBLIC_ENABLE_ORDERING
+ENV NEXT_PUBLIC_SHOW_PRICES=$NEXT_PUBLIC_SHOW_PRICES
 
 # Install all dependencies INCLUDING devDependencies (tailwind, autoprefixer,
 # typescript are needed to build). --include=dev is required because NODE_ENV

@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { StockBadge, type StockStatus } from "@/components/products/stock-badge";
 import { ProductImage } from "@/components/products/product-image";
 import { formatPrice } from "@/lib/utils";
+import { SHOW_PRICES } from "@/lib/config";
 
 interface ProductCardProps {
   id: string;
@@ -66,7 +67,7 @@ export function ProductCard({
       {/* Footer */}
       <CardFooter className="flex items-center justify-between gap-2 p-4 pt-0">
         <div className="flex flex-col">
-          {price != null ? (
+          {SHOW_PRICES && price != null ? (
             <div className="flex items-baseline gap-2">
               <span className="text-xl font-bold text-foreground">{formatPrice(price)}</span>
               {hasDiscount && (

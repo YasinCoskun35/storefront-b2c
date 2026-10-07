@@ -62,6 +62,8 @@ services:
         NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost}
         # Ordering (cart/checkout) is off by default — catalog + WhatsApp only.
         NEXT_PUBLIC_ENABLE_ORDERING: ${ENABLE_ORDERING:-false}
+        # Prices are hidden by default; customers ask via WhatsApp.
+        NEXT_PUBLIC_SHOW_PRICES: ${SHOW_PRICES:-false}
     container_name: storefront-web-prod
     restart: always
     environment:

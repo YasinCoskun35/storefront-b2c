@@ -32,9 +32,10 @@ JWT_AUDIENCE=Storefront.Web
 # Public site config (baked into the web build)
 PUBLIC_API_URL=https://yourdomain.com   # your public domain (nginx proxies /api and /uploads)
 ENABLE_ORDERING=false                    # keep false for catalog + WhatsApp mode
+SHOW_PRICES=false                        # true shows product prices
 ```
 
-> `PUBLIC_API_URL` and `ENABLE_ORDERING` are **build-time** values. If you change
+> `PUBLIC_API_URL`, `ENABLE_ORDERING` and `SHOW_PRICES` are **build-time** values. If you change
 > them later you must rebuild the web image (`docker compose ... build web`).
 
 ## 3. Build and start
