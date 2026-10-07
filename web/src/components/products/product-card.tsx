@@ -30,12 +30,14 @@ export function ProductCard({
     <Card className="group relative flex h-full flex-col overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg">
       {/* Image */}
       <Link href={`/products/${id}`} className="relative block" tabIndex={-1}>
-        <div className="relative aspect-square overflow-hidden bg-muted">
+        <div className="relative aspect-square overflow-hidden bg-white">
+          {/* contain, not cover: supplier photos are often wide (handles, rails) and cropping cuts the product off */}
           <ProductImage
             src={image}
             alt={name}
+            fit="contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            className="transition-transform duration-300 group-hover:scale-105"
+            className="p-4 transition-transform duration-300 group-hover:scale-105"
           />
 
           <div className="absolute right-2 top-2">

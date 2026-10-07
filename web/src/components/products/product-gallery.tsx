@@ -58,13 +58,13 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               aria-label={`${productName} - ${index + 1}. fotoğrafı gör`}
               aria-current={index === activeIndex}
               className={cn(
-                "relative aspect-square overflow-hidden rounded-lg border-2 bg-muted transition-colors",
+                "relative aspect-square overflow-hidden rounded-lg border-2 bg-white transition-colors",
                 index === activeIndex
                   ? "border-primary"
                   : "border-transparent hover:border-border"
               )}
             >
-              <ProductImage src={img.url} alt="" />
+              <ProductImage src={img.url} alt="" fit="contain" className="p-1" />
             </button>
           ))}
         </div>
