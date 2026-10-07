@@ -32,15 +32,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       pageNumber,
       pageSize,
     }),
-    catalogApi.getCategories(),
+    catalogApi.getAllCategories(),
   ]);
 
   const activeCategory = categories.find((c) => c.id === params.categoryId);
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="font-display text-4xl font-bold">
+      <div className="mb-6 md:mb-8">
+        <h1 className="font-display text-3xl font-bold md:text-4xl">
           {activeCategory ? activeCategory.name : "Ürünler"}
         </h1>
         {params.q ? (
@@ -52,13 +52,17 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         ) : null}
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 lg:gap-8">
         {/* Filters Sidebar */}
         <aside className="lg:col-span-1">
-          <div className="sticky top-20">
-            <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
+          <div className="lg:sticky lg:top-20">
+            <Suspense fallback={<Skeleton className="h-11 w-full rounded-xl lg:h-96" />}>
               <ProductFilters
-                categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+                categories={categories.map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                  parentId: c.parentId ?? null,
+                }))}
               />
             </Suspense>
           </div>
@@ -88,7 +92,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-3">
                 {productsResult.items.map((product) => (
                   <ProductCard
                     key={product.id}

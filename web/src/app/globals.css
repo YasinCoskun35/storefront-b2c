@@ -106,3 +106,13 @@
   }
 }
 
+
+/* Product photo zoom (yet-another-react-lightbox) on a white backdrop:
+   default controls are white, so darken them. */
+.product-zoom {
+  --yarl__color_button: rgba(17, 24, 39, 0.75);
+  --yarl__color_button_active: rgb(17, 24, 39);
+  --yarl__color_button_disabled: rgba(17, 24, 39, 0.3);
+  --yarl__counter_color: rgb(17, 24, 39);
+  --yarl__button_filter: none;
+}

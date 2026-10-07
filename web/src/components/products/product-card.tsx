@@ -38,16 +38,16 @@ export function ProductCard({
             alt={name}
             fit="contain"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            className="p-4 transition-transform duration-300 group-hover:scale-105"
+            className="p-2 transition-transform duration-300 group-hover:scale-105 sm:p-4"
           />
 
-          <div className="absolute right-2 top-2">
+          <div className="absolute right-2 top-2 hidden sm:block">
             <StockBadge status={stockStatus} />
           </div>
 
           {category && (
-            <div className="absolute left-2 top-2">
-              <Badge className="border-transparent bg-blue-600 text-white shadow-sm hover:bg-blue-600">
+            <div className="absolute left-2 right-2 top-2 sm:right-24">
+              <Badge className="max-w-full truncate border-transparent bg-blue-600 px-2 py-0.5 text-[10px] text-white shadow-sm hover:bg-blue-600 sm:text-xs">
                 {category}
               </Badge>
             </div>
@@ -56,16 +56,16 @@ export function ProductCard({
       </Link>
 
       {/* Content */}
-      <CardContent className="flex-1 p-4">
+      <CardContent className="flex-1 p-3 sm:p-4">
         <Link href={`/products/${id}`}>
-          <h3 className="font-display text-base font-semibold leading-snug text-foreground line-clamp-2 transition-colors hover:text-primary">
+          <h3 className="font-display text-sm font-semibold leading-snug sm:text-base text-foreground line-clamp-2 transition-colors hover:text-primary">
             {name}
           </h3>
         </Link>
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="flex items-center justify-between gap-2 p-4 pt-0">
+      <CardFooter className="flex flex-col items-start gap-1 p-3 pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2 sm:p-4 sm:pt-0">
         <div className="flex flex-col">
           {SHOW_PRICES && price != null ? (
             <div className="flex items-baseline gap-2">
@@ -77,7 +77,7 @@ export function ProductCard({
               )}
             </div>
           ) : (
-            <span className="text-sm text-muted-foreground">Fiyat için sorunuz</span>
+            <span className="text-xs text-muted-foreground sm:text-sm">Fiyat için sorunuz</span>
           )}
         </div>
 
